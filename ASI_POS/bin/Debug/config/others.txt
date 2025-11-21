@@ -1,0 +1,1 @@
+{"MarkUpPrice":0.0,"StockedItems":0,"NoUpcProducts":false,"QtyPack":1,"Inet_Value":"0,1,2","PLevels":"1,2,3"}
