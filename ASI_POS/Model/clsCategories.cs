@@ -8,8 +8,9 @@ namespace ASI_POS.Model
 {
     class clsCategories
     {
-        public Int32 Select { get; set; }
-        public Int32 ID { get; set; }
+        public int Sel { get; set; }
+        public string ID { get; set; }
         public string Depart { get; set; }
+        public int Taxlevel { get; set; }
     }
 }

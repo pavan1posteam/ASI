@@ -39,10 +39,11 @@ namespace ASI_POS
                 txtFTPserver.Text = settings.FtpServer;
                 txtFTPuid.Text = settings.FtpUserName;
                 txtUPFolder.Text = settings.FtpUpFolder;
-                txtTaxrate.Text = settings.Tax;
+                txtdownloadpath.Text = settings.FtpDownFolder;
                 txtasistoreid.Text = settings.Asi_Store_Id;
                 txtInetValue.Text = settings.InvetValue;
                 txtPrcLvl.Text = settings.PrcLevels;
+                txttaxcode.Text = settings.TaxCode;
                 if (settings.StockedItems == 0)
                 {
                     chkStoked.Checked = false;
@@ -115,7 +116,7 @@ namespace ASI_POS
 
         private void btnFTPSave_Click(object sender, EventArgs e)
         {
-            if (txtStoreID.Text.Trim().Length == 0 || txtFTPserver.Text.Trim().Length == 0 || txtFTPuid.Text.Trim().Length == 0 || txtFTPpwd.Text.Trim().Length == 0 || txtUPFolder.Text.Trim().Length == 0 || txtTaxrate.Text.Trim().Length == 0)
+            if (txtStoreID.Text.Trim().Length == 0 || txtFTPserver.Text.Trim().Length == 0 || txtFTPuid.Text.Trim().Length == 0 || txtFTPpwd.Text.Trim().Length == 0 || txtUPFolder.Text.Trim().Length == 0 || txttaxcode.Text.Trim().Length == 0)
             {
                 MessageBox.Show("All fields are mandatory !", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -128,7 +129,8 @@ namespace ASI_POS
                 clsftp.FtpUserName = txtFTPuid.Text;
                 clsftp.FtpPassword = txtFTPpwd.Text;
                 clsftp.UpFolder = txtUPFolder.Text;
-                clsftp.Tax = txtTaxrate.Text;
+                clsftp.DownFolder = txtdownloadpath.Text;
+                clsftp.TaxCode = txttaxcode.Text;
                 clsftp.Asi_StoreId = txtasistoreid.Text;
                 Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
                 using (StreamWriter sw = new StreamWriter(@"config\ftpsettings.txt"))
@@ -145,9 +147,18 @@ namespace ASI_POS
 
         private void btnCatsave_Click(object sender, EventArgs e)
         {
+            //var query = from r in dtCat.AsEnumerable()
+            //            where r.Field<decimal>("sel") == 1
+            //            select new { sel = Convert.ToInt32(r["sel"]), ID = Convert.ToInt32(r["ID"]), Depart = r["Name"] };
+
             var query = from r in dtCat.AsEnumerable()
-                        where r.Field<decimal>("sel") == 1
-                        select new { sel = Convert.ToInt32(r["sel"]), ID = Convert.ToInt32(r["ID"]), Depart = r["Name"] };    
+                        select new
+                        {
+                            sel = r.IsNull("sel") ? 0 : Convert.ToInt32(r["sel"]),
+                            ID = r.IsNull("ID") ? "0" : r.Field<string>("ID"),
+                            Depart = r.Field<string>("Name"),
+                            Taxlevel = r.IsNull("Taxlevel") ? 0 : Convert.ToInt32(r["Taxlevel"])
+                        };
             if (query.Count() == 0)
             {
                 MessageBox.Show(" Select Categories ", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -184,7 +195,7 @@ namespace ASI_POS
                 string connectionstring = settings.ConnectionString;
                 con = new OleDbConnection(connectionstring);
 
-                OleDbCommand cmd = new OleDbCommand("SELECT DISTINCT 0 as sel,CAT as ID, Name FROM cat ", con);
+                OleDbCommand cmd = new OleDbCommand("SELECT DISTINCT 0 as sel,CAT as ID, Name, Taxlevel FROM cat ", con);
                 con.Open();
                 cmd.ExecuteNonQuery();
                 OleDbDataAdapter adp = new OleDbDataAdapter(cmd);
@@ -194,16 +205,15 @@ namespace ASI_POS
                 {
                     foreach (var itm in clscat)
                     {
-                        string depart = itm.Depart.ToString().Replace("'", "''");
-                        DataRow row = dtCat.Select($"Name='{depart}'").FirstOrDefault();
-
-                        if (row != null)
+                        if(itm.Sel == 1)
                         {
-                            row["sel"] = 1;
-                        }
-                        else
-                        {
+                            string depart = itm.Depart.ToString().Replace("'", "''");
+                            DataRow row = dtCat.Select($"Name='{depart}'").FirstOrDefault();
 
+                            if (row != null)
+                            {
+                                row["sel"] = 1;
+                            }
                         }
                     }
                 }
@@ -291,6 +301,11 @@ namespace ASI_POS
         }
 
         private void chkStoked_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label13_Click(object sender, EventArgs e)
         {
 
         }

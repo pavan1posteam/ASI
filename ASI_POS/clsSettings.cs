@@ -21,10 +21,11 @@ namespace ASI_POS
         public string FtpUserName { get; set; }
         public string FtpPassword { get; set; }
         public string FtpUpFolder { get; set; }
+        public string FtpDownFolder { get; set; }
         public int StockedItems { get; set; }
         public bool InclNoUpcProducts { get; set; }
         public int QtyperPack { get; set; }
-        public string Tax { get; set; }
+        public string TaxCode { get; set; }
         public string serverpath { set; get; }
         public decimal MarkUpPrice { get; set; }
         public string Asi_Store_Id { get; set; }
@@ -60,7 +61,8 @@ namespace ASI_POS
                     FtpUserName = clsFTP.FtpUserName;
                     FtpPassword = clsFTP.FtpPassword;
                     FtpUpFolder = clsFTP.UpFolder;
-                    Tax = clsFTP.Tax;
+                    FtpDownFolder = clsFTP.DownFolder;
+                    TaxCode = clsFTP.TaxCode;
                     Asi_Store_Id = clsFTP.Asi_StoreId;
                 }
                 // For Others Settings

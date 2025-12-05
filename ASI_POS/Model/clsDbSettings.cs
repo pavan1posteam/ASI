@@ -11,4 +11,11 @@ namespace ASI_POS.Model
         public string selectpath { set; get; }
 
     }
+
+    class clscategory
+    {
+        public string catid { get; set; }
+        public string catname { get; set; }
+        public int taxlevel { get; set; }
+    }
 }

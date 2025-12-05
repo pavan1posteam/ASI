@@ -42,8 +42,6 @@ namespace ASI_POS
             this.btnFTPSave = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.txtasistoreid = new System.Windows.Forms.TextBox();
-            this.lblTaxalchl = new System.Windows.Forms.Label();
-            this.txtTaxrate = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.txtStoreID = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
@@ -59,6 +57,9 @@ namespace ASI_POS
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.btnCatsave = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.sel = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.btnOtherSave = new System.Windows.Forms.Button();
             this.panel3 = new System.Windows.Forms.Panel();
@@ -72,9 +73,10 @@ namespace ASI_POS
             this.textMarkUp = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.sel = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.label11 = new System.Windows.Forms.Label();
+            this.txttaxcode = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.txtdownloadpath = new System.Windows.Forms.TextBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -102,8 +104,8 @@ namespace ASI_POS
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -122,7 +124,7 @@ namespace ASI_POS
             this.tabPage1.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage1.Size = new System.Drawing.Size(595, 464);
+            this.tabPage1.Size = new System.Drawing.Size(595, 413);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Database Settings";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -190,7 +192,7 @@ namespace ASI_POS
             this.tabPage2.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage2.Size = new System.Drawing.Size(595, 464);
+            this.tabPage2.Size = new System.Drawing.Size(595, 413);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "FTP";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -199,7 +201,7 @@ namespace ASI_POS
             // 
             this.btnFTPSave.Image = ((System.Drawing.Image)(resources.GetObject("btnFTPSave.Image")));
             this.btnFTPSave.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnFTPSave.Location = new System.Drawing.Point(347, 338);
+            this.btnFTPSave.Location = new System.Drawing.Point(347, 353);
             this.btnFTPSave.Margin = new System.Windows.Forms.Padding(4);
             this.btnFTPSave.Name = "btnFTPSave";
             this.btnFTPSave.Size = new System.Drawing.Size(225, 52);
@@ -211,9 +213,11 @@ namespace ASI_POS
             // panel2
             // 
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Controls.Add(this.txtdownloadpath);
+            this.panel2.Controls.Add(this.label13);
+            this.panel2.Controls.Add(this.txttaxcode);
+            this.panel2.Controls.Add(this.label11);
             this.panel2.Controls.Add(this.txtasistoreid);
-            this.panel2.Controls.Add(this.lblTaxalchl);
-            this.panel2.Controls.Add(this.txtTaxrate);
             this.panel2.Controls.Add(this.label10);
             this.panel2.Controls.Add(this.txtStoreID);
             this.panel2.Controls.Add(this.label9);
@@ -229,33 +233,15 @@ namespace ASI_POS
             this.panel2.Location = new System.Drawing.Point(8, 8);
             this.panel2.Margin = new System.Windows.Forms.Padding(4);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(564, 322);
+            this.panel2.Size = new System.Drawing.Size(564, 337);
             this.panel2.TabIndex = 2;
             // 
             // txtasistoreid
             // 
-            this.txtasistoreid.Location = new System.Drawing.Point(389, 238);
+            this.txtasistoreid.Location = new System.Drawing.Point(389, 246);
             this.txtasistoreid.Name = "txtasistoreid";
             this.txtasistoreid.Size = new System.Drawing.Size(100, 32);
             this.txtasistoreid.TabIndex = 22;
-            // 
-            // lblTaxalchl
-            // 
-            this.lblTaxalchl.AutoSize = true;
-            this.lblTaxalchl.Location = new System.Drawing.Point(37, 238);
-            this.lblTaxalchl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblTaxalchl.Name = "lblTaxalchl";
-            this.lblTaxalchl.Size = new System.Drawing.Size(85, 24);
-            this.lblTaxalchl.TabIndex = 20;
-            this.lblTaxalchl.Text = "Tax_Rate";
-            // 
-            // txtTaxrate
-            // 
-            this.txtTaxrate.Location = new System.Drawing.Point(151, 236);
-            this.txtTaxrate.Margin = new System.Windows.Forms.Padding(4);
-            this.txtTaxrate.Name = "txtTaxrate";
-            this.txtTaxrate.Size = new System.Drawing.Size(103, 32);
-            this.txtTaxrate.TabIndex = 19;
             // 
             // label10
             // 
@@ -306,9 +292,9 @@ namespace ASI_POS
             this.label5.Location = new System.Drawing.Point(37, 171);
             this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(63, 24);
+            this.label5.Size = new System.Drawing.Size(98, 24);
             this.label5.TabIndex = 8;
-            this.label5.Text = "Folder";
+            this.label5.Text = "Inv_Folder";
             // 
             // label6
             // 
@@ -360,7 +346,7 @@ namespace ASI_POS
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(268, 244);
+            this.label1.Location = new System.Drawing.Point(261, 254);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(107, 24);
             this.label1.TabIndex = 21;
@@ -411,6 +397,34 @@ namespace ASI_POS
             this.dataGridView1.TabIndex = 2;
             this.dataGridView1.VirtualMode = true;
             // 
+            // sel
+            // 
+            this.sel.FalseValue = "0";
+            this.sel.HeaderText = "Select";
+            this.sel.MinimumWidth = 6;
+            this.sel.Name = "sel";
+            this.sel.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.sel.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.sel.TrueValue = "1";
+            this.sel.Width = 125;
+            // 
+            // ID
+            // 
+            this.ID.FillWeight = 50F;
+            this.ID.HeaderText = "ID";
+            this.ID.MinimumWidth = 6;
+            this.ID.Name = "ID";
+            this.ID.ReadOnly = true;
+            this.ID.Width = 50;
+            // 
+            // Description
+            // 
+            this.Description.HeaderText = "Name";
+            this.Description.MinimumWidth = 10;
+            this.Description.Name = "Description";
+            this.Description.ReadOnly = true;
+            this.Description.Width = 900;
+            // 
             // tabPage4
             // 
             this.tabPage4.Controls.Add(this.btnOtherSave);
@@ -419,9 +433,9 @@ namespace ASI_POS
             this.tabPage4.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage4.Size = new System.Drawing.Size(595, 464);
+            this.tabPage4.Size = new System.Drawing.Size(595, 413);
             this.tabPage4.TabIndex = 3;
-            this.tabPage4.Text = "Others";
+            this.tabPage4.Text = "Options";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
             // btnOtherSave
@@ -551,33 +565,38 @@ namespace ASI_POS
             this.label2.Size = new System.Drawing.Size(0, 24);
             this.label2.TabIndex = 14;
             // 
-            // sel
+            // label11
             // 
-            this.sel.FalseValue = "0";
-            this.sel.HeaderText = "Select";
-            this.sel.MinimumWidth = 6;
-            this.sel.Name = "sel";
-            this.sel.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.sel.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.sel.TrueValue = "1";
-            this.sel.Width = 125;
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(36, 254);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(90, 24);
+            this.label11.TabIndex = 23;
+            this.label11.Text = "Tax_Code";
             // 
-            // ID
+            // txttaxcode
             // 
-            this.ID.FillWeight = 50F;
-            this.ID.HeaderText = "ID";
-            this.ID.MinimumWidth = 6;
-            this.ID.Name = "ID";
-            this.ID.ReadOnly = true;
-            this.ID.Width = 50;
+            this.txttaxcode.Location = new System.Drawing.Point(155, 251);
+            this.txttaxcode.Name = "txttaxcode";
+            this.txttaxcode.Size = new System.Drawing.Size(100, 32);
+            this.txttaxcode.TabIndex = 24;
             // 
-            // Description
+            // label13
             // 
-            this.Description.HeaderText = "Name";
-            this.Description.MinimumWidth = 10;
-            this.Description.Name = "Description";
-            this.Description.ReadOnly = true;
-            this.Description.Width = 900;
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(37, 215);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(96, 24);
+            this.label13.TabIndex = 25;
+            this.label13.Text = "OrderPath";
+            this.label13.Click += new System.EventHandler(this.label13_Click);
+            // 
+            // txtdownloadpath
+            // 
+            this.txtdownloadpath.Location = new System.Drawing.Point(180, 207);
+            this.txtdownloadpath.Name = "txtdownloadpath";
+            this.txtdownloadpath.Size = new System.Drawing.Size(309, 32);
+            this.txtdownloadpath.TabIndex = 26;
             // 
             // Form2
             // 
@@ -620,8 +639,6 @@ namespace ASI_POS
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.Button btnFTPSave;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.Label lblTaxalchl;
-        private System.Windows.Forms.TextBox txtTaxrate;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox txtStoreID;
         private System.Windows.Forms.Label label9;
@@ -654,5 +671,9 @@ namespace ASI_POS
         private System.Windows.Forms.DataGridViewCheckBoxColumn sel;
         private System.Windows.Forms.DataGridViewTextBoxColumn ID;
         private System.Windows.Forms.DataGridViewTextBoxColumn Description;
+        private System.Windows.Forms.TextBox txtdownloadpath;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox txttaxcode;
+        private System.Windows.Forms.Label label11;
     }
 }
