@@ -24,6 +24,8 @@ namespace ASI_POS
         public string FtpDownFolder { get; set; }
         public int StockedItems { get; set; }
         public bool InclNoUpcProducts { get; set; }
+        public bool AddDiscountable { get; set; }
+        public bool IncludeFloor { get; set; }
         public int QtyperPack { get; set; }
         public string TaxCode { get; set; }
         public string serverpath { set; get; }
@@ -80,6 +82,8 @@ namespace ASI_POS
                     QtyperPack = others.QtyPack;
                     InclNoUpcProducts = others.NoUpcProducts;
                     PrcLevels = others.PLevels;
+                    AddDiscountable = others.chkDiscountable;
+                    IncludeFloor = others.chkfloor;
                 }
             }
         }

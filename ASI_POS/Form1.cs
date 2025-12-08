@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using ASI_POS.Model;
+using System.Globalization;
 
 namespace ASI_POS
 {
@@ -143,15 +144,15 @@ namespace ASI_POS
                         c.taxlevel = cat.Taxlevel;
                         cats.Add(c);
                     }
-                    if (strcats.Length > 0)
-                    {
-                        strcats = "and i.CAT in (" + strcats + ")";
-                    }
-                    string strStock = "";
-                    if (settings.StockedItems == 1)
-                    {
-                        strStock = " and int(s.BACK) > 0  ";
-                    }
+                    //if (strcats.Length > 0)
+                    //{
+                    //    strcats = "and i.CAT in (" + strcats + ")";
+                    //}
+                    //string strStock = "";
+                    //if (settings.StockedItems == 1)
+                    //{
+                    //    strStock = " and int(s.BACK) > 0  ";
+                    //}
                     string servername = System.Environment.MachineName.ToString();
                     settings.LoadSettings();
                     string ConnectionString = settings.ConnectionString;
@@ -167,25 +168,24 @@ namespace ASI_POS
                     #region ASI_POS
                     string liqtbl = "SELECT " + StoreId + " as Storeid,u.UPC as Upc,s.BACK as qty, s.FLOOR as qty2, u.LEVEL as InetValue, p.LEVEL as prclvl,i.DEPOS as depcode, ";
                     liqtbl += "i.SKU as Sku, i.PACK as pack,i.SNAME as Uom,";
-                    liqtbl += "i.NAME as StoreProductName,i.NAME as StoreDescription, i.cat as icat,";
+                    liqtbl += "i.NAME as StoreProductName,i.NAME as StoreDescription, i.cat as icat,p.Onsale as Discountable,";
                     liqtbl += "p.PRICE as Price,p.PROMO as promcode, 0 as sprice,p.SALE as sprce1,'' as Start, '' as end, '' as altupc1,";
                     liqtbl += "'' as altupc2,'' as altupc3,'' as altupc4,'' as altupc5,i.VINTAGE as vintage,  i.ACOST as Cost,i.TYPENAME as pcat,'' as pcat1,'' as pcat2,'' as country, '' as region  ";//p.DCODE as DiscountCode,
                     liqtbl += "FROM ((inv i left join upc u on i.SKU = u.SKU) left join stk s on i.SKU = s.SKU) left join prc p on i.SKU = p.SKU  ";
-                    liqtbl += "where s.STAT = '2' and p.STORE =  " + AsiId + " and s.STORE = " + AsiId + " " + strStock;//+ strcats
+                    liqtbl += "where s.STAT = '2' and p.STORE =  " + AsiId + " and s.STORE = " + AsiId + " ";// + strStock + strcats
                     
                     string depositquery = "Select DEPOS as depcode, UNIT as depositvalue from DEP";
                     string saledatequery = "Select  PROMO as promocode, START as sdate, STOP as edate from slh";
-                    string taxquery = "Select  CODE as taxcode, RATE as taxrate, cat as tcat from txc ";
-                    string taxcode1query = "Select  CODE as taxcode, RATE as taxrate, cat as tcat from txc where CODE = '" + taxcode + "'";
+                    string taxquery = "Select  CODE as taxcode, RATE as taxrate, cat as tcat, level as taxlevel from txc ";
 
 
                     string noupcproducts = "Select " + StoreId + " as Storeid,i.SKU as Sku, s.BACK as qty, s.FLOOR as qty2, p.LEVEL as prclvl,i.DEPOS as depcode, ";
                     noupcproducts += "i.PACK as pack,i.SNAME as Uom,";
-                    noupcproducts += "i.NAME as StoreProductName,i.NAME as StoreDescription,i.cat as icat,";
+                    noupcproducts += "i.NAME as StoreProductName,i.NAME as StoreDescription,i.cat as icat,p.Onsale as Discountable,";
                     noupcproducts += "p.PRICE as Price,p.PROMO as promcode, 0 as sprice,p.SALE as sprce1,'' as Start, '' as end,  '' as altupc1,";
                     noupcproducts += "'' as altupc2,'' as altupc3,'' as altupc4,'' as altupc5,i.Freeform1 as vintage, i.ACOST as Cost,i.TYPENAME as pcat,'' as pcat1,'' as pcat2,'' as country, '' as region  ";
                     noupcproducts += "FROM ((inv i  left join stk s on i.SKU = s.SKU) left join prc p on i.SKU = p.SKU ) ";
-                    noupcproducts += "where s.STAT = '2' and p.STORE =  " + AsiId + " and s.STORE = " + AsiId + " " + strStock;//+ strcats
+                    noupcproducts += "where s.STAT = '2' and p.STORE =  " + AsiId + " and s.STORE = " + AsiId + " ";// + strStock + strcats
                     noupcproducts += " and i.sku not in (Select SKU from upc)";
                     #endregion
 
@@ -215,7 +215,6 @@ namespace ASI_POS
                     DataTable dtsdatecode = new DataTable();
                     DataTable dtnoupc = new DataTable();
                     DataTable dttaxcode = new DataTable();
-                    DataTable dtftptaxcode = new DataTable();
 
                     using (OleDbConnection con = new OleDbConnection(ConnectionString))
                     {
@@ -248,13 +247,6 @@ namespace ASI_POS
                                 adp2.Fill(dttaxcode);
                             }
                         }
-                        using (OleDbCommand cmd = new OleDbCommand(taxcode1query, con))
-                        {
-                            using (OleDbDataAdapter adp2 = new OleDbDataAdapter(cmd))
-                            {
-                                adp2.Fill(dtftptaxcode);
-                            }
-                        }
                         if (settings.InclNoUpcProducts)
                         {
                             using (OleDbCommand cmd = new OleDbCommand(noupcproducts, con))
@@ -280,7 +272,7 @@ namespace ASI_POS
                     finalResult.Columns.Add("Sprice", typeof(string));
                     finalResult.Columns.Add("Start", typeof(string));
                     finalResult.Columns.Add("End", typeof(string));
-                    finalResult.Columns.Add("Tax", typeof(string));
+                    finalResult.Columns.Add("Tax", typeof(decimal));
                     finalResult.Columns.Add("TaxLevel", typeof(int));//Store 10001
                     finalResult.Columns.Add("Altupc1", typeof(string));
                     finalResult.Columns.Add("Altupc2", typeof(string));
@@ -291,7 +283,8 @@ namespace ASI_POS
                     finalResult.Columns.Add("Cost", typeof(string));
                     finalResult.Columns.Add("Deposit", typeof(string));
                     //finalResult.Columns.Add("DiscountCode", typeof(string));//Store 10128
-                    //finalResult.Columns.Add("Discountable", typeof(int));
+                    if(settings.AddDiscountable)
+                     finalResult.Columns.Add("Discountable", typeof(int));
 
                     #region full name 
                     DataTable fullResult = new DataTable();
@@ -309,6 +302,7 @@ namespace ASI_POS
                     fullResult.Columns.Add("region", typeof(string));
                     #endregion
                     var taxLookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
                     foreach (DataRow tr in dttaxcode.Rows)
                     {
                         string tcat = tr["tcat"]?.ToString()?.Trim() ?? "";
@@ -322,14 +316,13 @@ namespace ASI_POS
 
                     foreach (DataRow dr in dtLiqcode.Rows)
                     {
-                        if (!Regex.IsMatch(dr["Upc"].ToString().Trim(), @"^[0-9]+$"))
-                            continue;
-                        if (string.IsNullOrEmpty(dr["Upc"].ToString()))
-                            continue;
+                        var rawUpc = dr.GetString("Upc");
+                        if (string.IsNullOrEmpty(rawUpc) || !Regex.IsMatch(rawUpc, @"^[0-9]+$")) continue;
+                        var upc = "#" + rawUpc;
+
                         string INETVALUE = dr["InetValue"].ToString();
                         string prcLevel = dr["prclvl"].ToString();
                         string sku = dr["Sku"].ToString().Trim();
-                        string upc = "#" + dr["Upc"].ToString();
 
                         if (skuLookup.TryGetValue(sku, out DataRow existingRow))
                         {
@@ -372,11 +365,13 @@ namespace ASI_POS
 
                         newRow["StoreId"] = dr["StoreId"];
                         newRow["Upc"] = upc;
-                        newRow["Qty"] = dr["qty"];
+                        var pqty = Convert.ToInt32(dr["qty"]);
+                        if (settings.IncludeFloor)
+                            pqty += Convert.ToInt32(dr["qty2"]);
+                        newRow["Qty"] = pqty;
                         newRow["Sku"] = "#" + sku;
                         newRow["Uom"] = dr["Uom"];
                         newRow["Pack"] = 1;
-                        int qty = Convert.ToInt32(dr["qty"].ToString());
                         string pcat = (dr["pcat"]?.ToString() ?? "").ToUpper().Trim();
                         newRow["Pack"] = 1;
 
@@ -392,13 +387,16 @@ namespace ASI_POS
                             }
                             else
                             {
-                                int qtypack = qty / pack;
-                                qty = qtypack;
+                                int qtypack = pqty / pack;
+                                pqty = qtypack;
                                 newRow["Pack"] = pack;        
                                 newRow["Qty"] = qtypack;
                             }
                         }
-
+                        if (settings.StockedItems == 1 && pqty < 0)
+                        {
+                            continue;
+                        }
                         newRow["StoreProductName"] = dr["StoreProductName"];
                         string productDesc = dr["StoreDescription"].ToString();
                         productDesc = productDesc.Replace("\r", " ").Replace("\n", " ").Replace("\"", "")  .Trim();
@@ -412,19 +410,7 @@ namespace ASI_POS
                         newRow["Start"] = dr["Start"];
                         newRow["End"] = dr["End"];
                         var invcat = dr["icat"]?.ToString()?.Trim();
-
-                        if (!string.IsNullOrEmpty(invcat) && taxLookup.TryGetValue(invcat, out var taxrate1))
-                        {
-                            newRow["Tax"] = taxrate1;
-                        }
-                        else
-                        {
-                            foreach(DataRow tax in dtftptaxcode.Rows)
-                            {
-                                newRow["Tax"] = tax["taxrate"];
-                                break;
-                            }
-                        }
+                        newRow["Tax"] = ComputeTaxRateForInv(dr, taxcode, dttaxcode, cats);
                         var match = cats.FirstOrDefault(x => x.catid.Equals(invcat));
                         if (match != null)
                         {
@@ -439,7 +425,16 @@ namespace ASI_POS
                         newRow["Vintage"] = Regex.IsMatch(vintage_value, @"^\d{4,}")? dr["vintage"]: "";
                         //newRow["DiscountCode"] = dr["DiscountCode"];
                         //string code = dr["DiscountCode"].ToString();
-                        //newRow["Discountable"] = string.IsNullOrWhiteSpace(code) ? 0 : 1;
+                        //newRow["Discountable"] = string.IsNullOrWhiteSpace(code) ? 0 : 1;//10128 store
+                        if (settings.AddDiscountable)
+                        {
+                            var chk = dr["Discountable"];
+                            if (chk.Equals("F"))
+                                newRow["Discountable"] = 0;
+                            else
+                                newRow["Discountable"] = 1;
+                        }
+
 
                         newRow["Cost"] = dr["Cost"];
                         newRow["Deposit"] = "0";
@@ -489,7 +484,7 @@ namespace ASI_POS
                             }
                         }
 
-                        if (Inet_Value.Contains(INETVALUE) && PriceLevels.Contains(prcLevel) && INETVALUE.Equals(prcLevel) && qty >= 0)
+                        if (Inet_Value.Contains(INETVALUE) && PriceLevels.Contains(prcLevel) && INETVALUE.Equals(prcLevel) && pqty >= 0)
                         {
                             if (catlist.Contains(invcat))
                             {
@@ -533,11 +528,13 @@ namespace ASI_POS
                             newRow["StoreId"] = dr["StoreId"];
                             newRow["Sku"] = "#" + sku;
                             newRow["Upc"] = generatedUpc;
-                            newRow["Qty"] = dr["qty"];
-                            
+                            var pqty = Convert.ToInt32(dr["qty"]);
+                            if (settings.IncludeFloor)
+                                pqty += Convert.ToInt32(dr["qty2"]);
+                            newRow["Qty"] = pqty;
+
                             newRow["Uom"] = dr["Uom"];
                             newRow["Pack"] = dr["pack"];
-                            int qty = Convert.ToInt32(dr["qty"].ToString());
                             string pcat = (dr["pcat"]?.ToString() ?? "").ToUpper().Trim();
                             newRow["Pack"] = 1;
 
@@ -553,11 +550,15 @@ namespace ASI_POS
                                 }
                                 else
                                 {
-                                    int qtypack = qty / pack;
-                                    qty = qtypack;
+                                    int qtypack = pqty / pack;
+                                    pqty = qtypack;
                                     newRow["Pack"] = pack;
                                     newRow["Qty"] = qtypack;
                                 }
+                            }
+                            if (settings.StockedItems == 1 && pqty < 0)
+                            {
+                                continue;
                             }
                             newRow["StoreProductName"] = dr["StoreProductName"];
                             string productDesc = dr["StoreDescription"].ToString();
@@ -572,18 +573,7 @@ namespace ASI_POS
                             newRow["Start"] = dr["Start"];
                             newRow["End"] = dr["End"];
                             var invcat = dr["icat"]?.ToString()?.Trim();
-                            if (!string.IsNullOrEmpty(invcat) && taxLookup.TryGetValue(invcat, out var taxrate1))
-                            {
-                                newRow["Tax"] = taxrate1;
-                            }
-                            else
-                            {
-                                foreach (DataRow tax in dtftptaxcode.Rows)
-                                {
-                                    newRow["Tax"] = tax["taxcode"];
-                                    break;
-                                }
-                            }
+                            newRow["Tax"] = ComputeTaxRateForInv(dr, taxcode, dttaxcode, cats);
                             var match = cats.FirstOrDefault(x => x.catid.Equals(invcat));
                             if (match != null)
                             {
@@ -599,7 +589,14 @@ namespace ASI_POS
                             //newRow["DiscountCode"] = dr["DiscountCode"];
                             newRow["Cost"] = dr["Cost"];
                             newRow["Deposit"] = "0";
-
+                            if (settings.AddDiscountable)
+                            {
+                                var chk = dr["Discountable"];
+                                if (chk.Equals("F"))
+                                    newRow["Discountable"] = 0;
+                                else
+                                    newRow["Discountable"] = 1;
+                            }
                             fullrow["pname"] = dr["StoreProductName"];
                             fullrow["pdesc"] = productDesc;
                             fullrow["Upc"] = newRow["Upc"];
@@ -693,6 +690,27 @@ namespace ASI_POS
                 MessageBox.Show("All the Setting are required !", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
+        public decimal ComputeTaxRateForInv(DataRow drProduct, string ecTaxCode, DataTable dtTxc, List<clscategory> cats)
+        {
+            decimal taxRate = 0m;
+            string invcat = drProduct["icat"]?.ToString()?.Trim() ?? "";
+            string cTaxLevel = "0";
+            var match = cats.FirstOrDefault(x => x.catid.Equals(invcat, StringComparison.OrdinalIgnoreCase));
+            if (match != null)
+                cTaxLevel = match.taxlevel.ToString().Trim();
+            var txcRows = dtTxc.AsEnumerable()
+                .Where(r => string.Equals((r["taxcode"]?.ToString() ?? "").Trim(), (ecTaxCode ?? "").Trim(), StringComparison.OrdinalIgnoreCase));
+
+            var row = txcRows.FirstOrDefault(r => string.Equals((r["taxlevel"]?.ToString() ?? "").Trim(), cTaxLevel.Trim(), StringComparison.OrdinalIgnoreCase));
+            if (row != null)
+            {
+                decimal parsed;
+                if (decimal.TryParse(row["taxrate"]?.ToString(), out parsed))
+                    taxRate = parsed;
+            }
+            return taxRate;
+        }
+
         private void CreateStructure()
         {
             DataColumn col1 = new DataColumn("storeid");
@@ -827,5 +845,25 @@ namespace ASI_POS
             this.Close();
         }
     }
+    public static class DataRowExtensions
+    {
+        public static string GetString(this DataRow r, string col) =>
+            r.Table.Columns.Contains(col) && r[col] != DBNull.Value ? r[col].ToString().Trim() : "";
+
+        public static int? GetInt(this DataRow r, string col)
+        {
+            var s = r.GetString(col);
+            if (int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var v)) return v;
+            return null;
+        }
+
+        public static decimal? GetDecimal(this DataRow r, string col)
+        {
+            var s = r.GetString(col);
+            if (decimal.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out var v)) return v;
+            return null;
+        }
+    }
+
 }
 

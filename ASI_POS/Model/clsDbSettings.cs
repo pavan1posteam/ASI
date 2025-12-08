@@ -12,7 +12,7 @@ namespace ASI_POS.Model
 
     }
 
-    class clscategory
+    public class clscategory
     {
         public string catid { get; set; }
         public string catname { get; set; }

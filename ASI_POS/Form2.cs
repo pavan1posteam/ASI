@@ -68,6 +68,8 @@ namespace ASI_POS
                 {
                     chkNoUpc.Checked = false;
                 }
+                chkdiscountable.Checked = settings.AddDiscountable;
+                chkfloor.Checked = settings.IncludeFloor;
                 textMarkUp.Text = settings.MarkUpPrice.ToString();
             }
             if (File.Exists("config//cat.txt"))
@@ -256,6 +258,8 @@ namespace ASI_POS
             others.PLevels = txtPrcLvl.Text;
             others.StockedItems = (int)chkStoked.CheckState;
             others.QtyPack = (int)chkqtypack.CheckState;
+            others.chkDiscountable = chkdiscountable.Checked;
+            others.chkfloor = chkfloor.Checked;
             JsonSerializer serializer = new JsonSerializer();
             using (StreamWriter sw = new StreamWriter(@"config\others.txt"))
             using (JsonTextWriter writer = new JsonTextWriter(sw))
