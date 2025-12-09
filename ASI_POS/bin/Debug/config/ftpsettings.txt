@@ -1,1 +1,1 @@
-{"StoreId":"10128","Server":"54.174.152.95","FtpUserName":"AAAStore_10000","FtpPassword":"A5t0r3@10000","UpFolder":"Upload","DownFolder":"","TaxCode":"CITYEX","Asi_StoreId":"1"}
+{"StoreId":"10128","Server":"54.174.152.95","FtpUserName":"AAAStore_10000","FtpPassword":"A5t0r3@10000","TaxCode":"CITYEX","Asi_StoreId":"1"}

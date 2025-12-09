@@ -9,7 +9,8 @@ namespace ASI_POS.Model
     class clsDbSettings
     {
         public string selectpath { set; get; }
-
+        public string UpFolder { get; set; }
+        public string DownFolder { get; set; }
     }
 
     public class clscategory

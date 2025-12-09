@@ -13,8 +13,10 @@ namespace ASI_POS.Model
         public bool NoUpcProducts { get; set; }
         public bool chkDiscountable { get; set; }
         public bool chkfloor { get; set; }
+        public bool AllQtyPack { get; set; }
         public int QtyPack { get; set; }
         public string Inet_Value { get; set; }
         public string PLevels { get; set; }
+        public string Statvalue { get; set; }
     }
 }

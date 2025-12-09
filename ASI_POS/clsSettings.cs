@@ -26,6 +26,7 @@ namespace ASI_POS
         public bool InclNoUpcProducts { get; set; }
         public bool AddDiscountable { get; set; }
         public bool IncludeFloor { get; set; }
+        public bool AllQtyperPack { get; set; }
         public int QtyperPack { get; set; }
         public string TaxCode { get; set; }
         public string serverpath { set; get; }
@@ -33,6 +34,7 @@ namespace ASI_POS
         public string Asi_Store_Id { get; set; }
         public string InvetValue { get; set; }
         public string PrcLevels { get; set; }
+        public string Stat { get; set; }
         public void LoadSettings()
         {
             string json;
@@ -46,7 +48,12 @@ namespace ASI_POS
                 clsDbSettings clsdb = JsonConvert.DeserializeObject<clsDbSettings>(json);
 
                 if (clsdb != null)
+                {
                     serverpath = clsdb.selectpath;
+                    FtpUpFolder = clsdb.UpFolder;
+                    FtpDownFolder = clsdb.DownFolder;
+                }
+                    
 
                 ConnectionString = String.Format("Provider=VFPOLEDB;Data Source={0};Collating Sequence=machine;Mode=Share Deny None;", serverpath);
 
@@ -62,8 +69,7 @@ namespace ASI_POS
                     FtpServer = clsFTP.Server;
                     FtpUserName = clsFTP.FtpUserName;
                     FtpPassword = clsFTP.FtpPassword;
-                    FtpUpFolder = clsFTP.UpFolder;
-                    FtpDownFolder = clsFTP.DownFolder;
+                    
                     TaxCode = clsFTP.TaxCode;
                     Asi_Store_Id = clsFTP.Asi_StoreId;
                 }
@@ -84,6 +90,8 @@ namespace ASI_POS
                     PrcLevels = others.PLevels;
                     AddDiscountable = others.chkDiscountable;
                     IncludeFloor = others.chkfloor;
+                    AllQtyperPack = others.AllQtyPack;
+                    Stat = others.Statvalue;
                 }
             }
         }

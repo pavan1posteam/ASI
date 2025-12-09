@@ -44,6 +44,7 @@ namespace ASI_POS
                 txtInetValue.Text = settings.InvetValue;
                 txtPrcLvl.Text = settings.PrcLevels;
                 txttaxcode.Text = settings.TaxCode;
+                txtstat.Text = settings.Stat;
                 if (settings.StockedItems == 0)
                 {
                     chkStoked.Checked = false;
@@ -70,6 +71,7 @@ namespace ASI_POS
                 }
                 chkdiscountable.Checked = settings.AddDiscountable;
                 chkfloor.Checked = settings.IncludeFloor;
+                chkallqtyperpack.Checked = settings.AllQtyperPack;
                 textMarkUp.Text = settings.MarkUpPrice.ToString();
             }
             if (File.Exists("config//cat.txt"))
@@ -96,6 +98,8 @@ namespace ASI_POS
         {
             clsDbSettings clsdb = new clsDbSettings();
             clsdb.selectpath = textpath.Text;
+            clsdb.UpFolder = txtUPFolder.Text;
+            clsdb.DownFolder = txtdownloadpath.Text;
             try
             {
                 Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
@@ -106,13 +110,13 @@ namespace ASI_POS
                     sw.Close();
                     writer.Close();
                 }
-                MessageBox.Show("Test Connected Sucessfully ", "Connection Status");
+                MessageBox.Show("Saved Sucessfully!!", "Connection Status");
             }
             catch (Exception)
             {
                 MessageBox.Show("Connection Failure, Please check Database settings", "Connection Status");
             }
-            loadCats();
+            //loadCats();
             settings.LoadSettings();
         }
 
@@ -130,8 +134,6 @@ namespace ASI_POS
                 clsftp.Server = txtFTPserver.Text;
                 clsftp.FtpUserName = txtFTPuid.Text;
                 clsftp.FtpPassword = txtFTPpwd.Text;
-                clsftp.UpFolder = txtUPFolder.Text;
-                clsftp.DownFolder = txtdownloadpath.Text;
                 clsftp.TaxCode = txttaxcode.Text;
                 clsftp.Asi_StoreId = txtasistoreid.Text;
                 Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
@@ -143,16 +145,12 @@ namespace ASI_POS
                     writer.Close();
                 }
             }
-            MessageBox.Show("Ftp Settings Saved Successfully !!", "Ftp Setting", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Saved Sucessfully!!", "Ftp Setting", MessageBoxButtons.OK, MessageBoxIcon.Information);
             settings.LoadSettings();
         }
 
         private void btnCatsave_Click(object sender, EventArgs e)
         {
-            //var query = from r in dtCat.AsEnumerable()
-            //            where r.Field<decimal>("sel") == 1
-            //            select new { sel = Convert.ToInt32(r["sel"]), ID = Convert.ToInt32(r["ID"]), Depart = r["Name"] };
-
             var query = from r in dtCat.AsEnumerable()
                         select new
                         {
@@ -177,7 +175,7 @@ namespace ASI_POS
                     writer.Close();
                 }
             }
-            MessageBox.Show("Category Saved Successfully !!", "Category", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Saved Sucessfully!!", "Category", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         private void loadCats()
         {
@@ -260,6 +258,8 @@ namespace ASI_POS
             others.QtyPack = (int)chkqtypack.CheckState;
             others.chkDiscountable = chkdiscountable.Checked;
             others.chkfloor = chkfloor.Checked;
+            others.AllQtyPack = chkallqtyperpack.Checked;
+            others.Statvalue = txtstat.Text;
             JsonSerializer serializer = new JsonSerializer();
             using (StreamWriter sw = new StreamWriter(@"config\others.txt"))
             using (JsonTextWriter writer = new JsonTextWriter(sw))
@@ -312,6 +312,21 @@ namespace ASI_POS
         private void label13_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }
