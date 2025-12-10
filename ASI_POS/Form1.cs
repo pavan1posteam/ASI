@@ -312,7 +312,7 @@ namespace ASI_POS
                     finalResult.Columns.Add("Start", typeof(string));
                     finalResult.Columns.Add("End", typeof(string));
                     finalResult.Columns.Add("Tax", typeof(decimal));
-                    if (StoreId == 10001)
+                    if (StoreId == 10001 || StoreId == 12827)
                         finalResult.Columns.Add("TaxLevel", typeof(int));
                     finalResult.Columns.Add("Altupc1", typeof(string));
                     finalResult.Columns.Add("Altupc2", typeof(string));
@@ -460,7 +460,7 @@ namespace ASI_POS
                         var invcat = dr["icat"]?.ToString()?.Trim();
                         newRow["Tax"] = ComputeTaxRateForInv(dr, taxcode, dttaxcode, cats);
                         var match = cats.FirstOrDefault(x => x.catid.Equals(invcat));
-                        if (match != null && StoreId == 10001)
+                        if (match != null && (StoreId == 10001 || StoreId == 12827))
                         {
                             newRow["TaxLevel"] = match.taxlevel;
                         }
@@ -633,7 +633,7 @@ namespace ASI_POS
                             var invcat = dr["icat"]?.ToString()?.Trim();
                             newRow["Tax"] = ComputeTaxRateForInv(dr, taxcode, dttaxcode, cats);
                             var match = cats.FirstOrDefault(x => x.catid.Equals(invcat));
-                            if (match != null)
+                            if (match != null && (StoreId == 10001 || StoreId == 12827))
                             {
                                 newRow["TaxLevel"] = match.taxlevel;
                             }
