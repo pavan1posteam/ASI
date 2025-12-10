@@ -72,6 +72,9 @@ namespace ASI_POS
                 chkdiscountable.Checked = settings.AddDiscountable;
                 chkfloor.Checked = settings.IncludeFloor;
                 chkallqtyperpack.Checked = settings.AllQtyperPack;
+                chkupcustomerfiles.Checked = settings.updateCustomerFiles;
+                chkclubcardno.Checked = settings.updateClubcardNo;
+                txtwebstore.Text = settings.webstore;
                 textMarkUp.Text = settings.MarkUpPrice.ToString();
             }
             if (File.Exists("config//cat.txt"))
@@ -260,6 +263,9 @@ namespace ASI_POS
             others.chkfloor = chkfloor.Checked;
             others.AllQtyPack = chkallqtyperpack.Checked;
             others.Statvalue = txtstat.Text;
+            others.updatecustomerfiles = chkupcustomerfiles.Checked;
+            others.updatecclubcardnos = chkclubcardno.Checked;
+            others.mobilestore = txtwebstore.Text;
             JsonSerializer serializer = new JsonSerializer();
             using (StreamWriter sw = new StreamWriter(@"config\others.txt"))
             using (JsonTextWriter writer = new JsonTextWriter(sw))

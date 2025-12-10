@@ -52,6 +52,10 @@ namespace ASI_POS
             this.button2 = new System.Windows.Forms.Button();
             this.btnDbSave = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.txtdownloadpath = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.txtUPFolder = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.btnBrowse = new System.Windows.Forms.Button();
             this.textpath = new System.Windows.Forms.TextBox();
             this.labelPath = new System.Windows.Forms.Label();
@@ -81,10 +85,10 @@ namespace ASI_POS
             this.textMarkUp = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.txtUPFolder = new System.Windows.Forms.TextBox();
-            this.label13 = new System.Windows.Forms.Label();
-            this.txtdownloadpath = new System.Windows.Forms.TextBox();
+            this.chkupcustomerfiles = new System.Windows.Forms.CheckBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.txtwebstore = new System.Windows.Forms.TextBox();
+            this.chkclubcardno = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -346,6 +350,40 @@ namespace ASI_POS
             this.panel1.Size = new System.Drawing.Size(553, 362);
             this.panel1.TabIndex = 1;
             // 
+            // txtdownloadpath
+            // 
+            this.txtdownloadpath.Location = new System.Drawing.Point(139, 208);
+            this.txtdownloadpath.Name = "txtdownloadpath";
+            this.txtdownloadpath.Size = new System.Drawing.Size(309, 32);
+            this.txtdownloadpath.TabIndex = 82;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(17, 216);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(116, 24);
+            this.label13.TabIndex = 81;
+            this.label13.Text = "OrderFolder:";
+            // 
+            // txtUPFolder
+            // 
+            this.txtUPFolder.Location = new System.Drawing.Point(121, 164);
+            this.txtUPFolder.Margin = new System.Windows.Forms.Padding(4);
+            this.txtUPFolder.Name = "txtUPFolder";
+            this.txtUPFolder.Size = new System.Drawing.Size(309, 32);
+            this.txtUPFolder.TabIndex = 80;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(17, 171);
+            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(103, 24);
+            this.label5.TabIndex = 79;
+            this.label5.Text = "Inv_Folder:";
+            // 
             // btnBrowse
             // 
             this.btnBrowse.Location = new System.Drawing.Point(443, 78);
@@ -513,6 +551,10 @@ namespace ASI_POS
             // panel3
             // 
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel3.Controls.Add(this.chkclubcardno);
+            this.panel3.Controls.Add(this.txtwebstore);
+            this.panel3.Controls.Add(this.label15);
+            this.panel3.Controls.Add(this.chkupcustomerfiles);
             this.panel3.Controls.Add(this.txtstat);
             this.panel3.Controls.Add(this.label14);
             this.panel3.Controls.Add(this.chkallqtyperpack);
@@ -536,7 +578,7 @@ namespace ASI_POS
             // 
             // txtstat
             // 
-            this.txtstat.Location = new System.Drawing.Point(68, 140);
+            this.txtstat.Location = new System.Drawing.Point(68, 176);
             this.txtstat.Name = "txtstat";
             this.txtstat.Size = new System.Drawing.Size(100, 32);
             this.txtstat.TabIndex = 37;
@@ -544,7 +586,7 @@ namespace ASI_POS
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(11, 140);
+            this.label14.Location = new System.Drawing.Point(11, 178);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(51, 24);
             this.label14.TabIndex = 36;
@@ -585,7 +627,7 @@ namespace ASI_POS
             // 
             // txtInetValue
             // 
-            this.txtInetValue.Location = new System.Drawing.Point(135, 99);
+            this.txtInetValue.Location = new System.Drawing.Point(135, 132);
             this.txtInetValue.Name = "txtInetValue";
             this.txtInetValue.Size = new System.Drawing.Size(100, 32);
             this.txtInetValue.TabIndex = 32;
@@ -593,7 +635,7 @@ namespace ASI_POS
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(11, 102);
+            this.label3.Location = new System.Drawing.Point(9, 140);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(109, 24);
             this.label3.TabIndex = 31;
@@ -601,7 +643,7 @@ namespace ASI_POS
             // 
             // txtPrcLvl
             // 
-            this.txtPrcLvl.Location = new System.Drawing.Point(135, 56);
+            this.txtPrcLvl.Location = new System.Drawing.Point(135, 96);
             this.txtPrcLvl.Name = "txtPrcLvl";
             this.txtPrcLvl.Size = new System.Drawing.Size(100, 32);
             this.txtPrcLvl.TabIndex = 30;
@@ -609,7 +651,7 @@ namespace ASI_POS
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(10, 56);
+            this.label4.Location = new System.Drawing.Point(11, 99);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(110, 24);
             this.label4.TabIndex = 29;
@@ -651,7 +693,7 @@ namespace ASI_POS
             // 
             // textMarkUp
             // 
-            this.textMarkUp.Location = new System.Drawing.Point(135, 17);
+            this.textMarkUp.Location = new System.Drawing.Point(135, 61);
             this.textMarkUp.Margin = new System.Windows.Forms.Padding(4);
             this.textMarkUp.Name = "textMarkUp";
             this.textMarkUp.Size = new System.Drawing.Size(100, 32);
@@ -660,7 +702,7 @@ namespace ASI_POS
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(10, 20);
+            this.label12.Location = new System.Drawing.Point(11, 64);
             this.label12.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(127, 24);
@@ -676,39 +718,44 @@ namespace ASI_POS
             this.label2.Size = new System.Drawing.Size(0, 24);
             this.label2.TabIndex = 14;
             // 
-            // label5
+            // chkupcustomerfiles
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(17, 171);
-            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(103, 24);
-            this.label5.TabIndex = 79;
-            this.label5.Text = "Inv_Folder:";
+            this.chkupcustomerfiles.AutoSize = true;
+            this.chkupcustomerfiles.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkupcustomerfiles.Location = new System.Drawing.Point(13, 214);
+            this.chkupcustomerfiles.Name = "chkupcustomerfiles";
+            this.chkupcustomerfiles.Size = new System.Drawing.Size(222, 28);
+            this.chkupcustomerfiles.TabIndex = 38;
+            this.chkupcustomerfiles.Text = "Update Customer Files";
+            this.chkupcustomerfiles.UseVisualStyleBackColor = true;
             // 
-            // txtUPFolder
+            // label15
             // 
-            this.txtUPFolder.Location = new System.Drawing.Point(121, 164);
-            this.txtUPFolder.Margin = new System.Windows.Forms.Padding(4);
-            this.txtUPFolder.Name = "txtUPFolder";
-            this.txtUPFolder.Size = new System.Drawing.Size(309, 32);
-            this.txtUPFolder.TabIndex = 80;
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(11, 21);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(123, 24);
+            this.label15.TabIndex = 39;
+            this.label15.Text = "Mobile Store:";
             // 
-            // label13
+            // txtwebstore
             // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(17, 216);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(116, 24);
-            this.label13.TabIndex = 81;
-            this.label13.Text = "OrderFolder:";
+            this.txtwebstore.Location = new System.Drawing.Point(135, 20);
+            this.txtwebstore.Name = "txtwebstore";
+            this.txtwebstore.Size = new System.Drawing.Size(100, 32);
+            this.txtwebstore.TabIndex = 40;
             // 
-            // txtdownloadpath
+            // chkclubcardno
             // 
-            this.txtdownloadpath.Location = new System.Drawing.Point(139, 208);
-            this.txtdownloadpath.Name = "txtdownloadpath";
-            this.txtdownloadpath.Size = new System.Drawing.Size(309, 32);
-            this.txtdownloadpath.TabIndex = 82;
+            this.chkclubcardno.AutoSize = true;
+            this.chkclubcardno.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkclubcardno.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.chkclubcardno.Location = new System.Drawing.Point(15, 249);
+            this.chkclubcardno.Name = "chkclubcardno";
+            this.chkclubcardno.Size = new System.Drawing.Size(215, 28);
+            this.chkclubcardno.TabIndex = 41;
+            this.chkclubcardno.Text = "Update Club Card No:";
+            this.chkclubcardno.UseVisualStyleBackColor = true;
             // 
             // Form2
             // 
@@ -794,5 +841,9 @@ namespace ASI_POS
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.TextBox txtUPFolder;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.CheckBox chkupcustomerfiles;
+        private System.Windows.Forms.CheckBox chkclubcardno;
+        private System.Windows.Forms.TextBox txtwebstore;
+        private System.Windows.Forms.Label label15;
     }
 }

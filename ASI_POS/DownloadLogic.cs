@@ -1,9 +1,11 @@
-﻿using System;
+﻿using ASI_POS.Model;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
@@ -173,148 +175,64 @@ namespace ASI_POS
             {
                 if(xmlcount > 0)
                 {
-                    //fileprocessing();
+                    ProcessDownloadedXmlFiles();
                 }
                 SafeShowStatus("Disconnected from FTP");
             }
         }
-
-        public XmlProcessResult ProcessDownloadedXmlFiles(
-            string downloadFolder,
-            IEnumerable<FileTypeHandlerMapping> mappings,
-            bool moveOnSuccess = true,
-            bool moveOnFailure = true)
+        public XmlProcessResult ProcessDownloadedXmlFiles()
         {
             var result = new XmlProcessResult();
+            string downloadFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Upload/Download");
 
-            if (string.IsNullOrWhiteSpace(downloadFolder) || !Directory.Exists(downloadFolder))
-            {
-                SafeShowStatus($"Download folder missing: {downloadFolder}");
-                return result;
-            }
-
-            // ensure processed/failed directories exist
-            string processedDir = Path.Combine(downloadFolder, "Processed");
-            string failedDir = Path.Combine(downloadFolder, "Failed");
-            Directory.CreateDirectory(processedDir);
-            Directory.CreateDirectory(failedDir);
-
-            var xmlFiles = Directory.GetFiles(downloadFolder, "*.xml", SearchOption.TopDirectoryOnly)
-                                    .OrderBy(f => f) 
-                                    .ToList();
+            var xmlFiles = Directory.GetFiles(downloadFolder, "*.xml", SearchOption.TopDirectoryOnly).OrderBy(f => f).ToList();
 
             foreach (var fullPath in xmlFiles)
             {
                 string fileName = Path.GetFileName(fullPath);
+                string xmlContent = File.ReadAllText(fullPath);
                 SafeShowStatus("Processing file: " + fileName);
-
                 try
                 {
-                    // find mapping by filename pattern
-                    var mapping = mappings.FirstOrDefault(m => m.IsMatch(fileName));
-                    if (mapping == null)
+                    bool flag = false;
+                    if (Regex.IsMatch(fileName, @"^CUS", RegexOptions.IgnoreCase))
                     {
-                        SafeShowStatus($"No handler mapping found for {fileName} - moving to Failed");
-                        result.FailedFiles.Add(fileName);
-                        result.Failures[fileName] = new InvalidOperationException("No mapping");
-                        if (moveOnFailure) MoveToFolderAtomic(fullPath, failedDir);
-                        continue;
+                        Customers customers = new Customers();
+                        flag = customers.customerupdate(fileName, xmlContent);
+                    }
+                    else if (Regex.IsMatch(fileName, @"^ORD", RegexOptions.IgnoreCase))
+                    {
+
+                    }
+                    else if (Regex.IsMatch(fileName, @"^PMT", RegexOptions.IgnoreCase))
+                    {
+
+                    }
+                    if (flag)
+                    {
+                        SafeShowStatus($"Processed file: {fileName}");
+                        string transferTo = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Archive");
+                        if (!Directory.Exists(transferTo))
+                            Directory.CreateDirectory(transferTo);
+                        string destinationPath = Path.Combine(transferTo, Path.GetFileName(fileName));
+                        if (File.Exists(downloadFolder + "/" + fileName))
+                        {
+                            if (File.Exists(destinationPath))
+                                File.Delete(destinationPath);
+                            File.Move(downloadFolder + "/" + fileName, destinationPath);
+                        }
                     }
 
-                    // Deserialize XML into the target type. Supports either T (single object) or List<T>.
-                    object deserialized = DeserializeXml(fullPath, mapping.TargetType);
-
-                    if (deserialized == null)
-                    {
-                        throw new InvalidOperationException("Deserialization returned null");
-                    }
-
-                    // call the handler delegate
-                    mapping.Handler(deserialized);
-
-                    // mark success
-                    result.ProcessedFiles.Add(fileName);
-                    SafeShowStatus($"Processed: {fileName}");
-
-                    if (moveOnSuccess) MoveToFolderAtomic(fullPath, processedDir);
                 }
                 catch (Exception ex)
                 {
                     SafeShowStatus($"Processing failed for {fileName}: {ex.Message}");
                     result.FailedFiles.Add(fileName);
                     result.Failures[fileName] = ex;
-
-                    // move to failed folder so we don't retry broken files
-                    try { if (moveOnFailure) MoveToFolderAtomic(fullPath, failedDir); } catch { /* swallow */ }
                 }
             }
-
             return result;
         }
-
-        /// <summary>
-        /// Mapping entry: filename pattern -> target CLR type -> handler delegate
-        /// </summary>
-        public class FileTypeHandlerMapping
-        {
-            /// <summary>
-            /// If this regex or substring matches the filename, this mapping is used.
-            /// </summary>
-            public Func<string, bool> IsMatch { get; set; }
-
-            /// <summary>
-            /// System.Type to which XML will be deserialized (e.g. typeof(List&lt;MyOrder&gt;) or typeof(MyOrdersWrapper))
-            /// </summary>
-            public Type TargetType { get; set; }
-
-            /// <summary>
-            /// Action to call with deserialized object. The object will be of TargetType.
-            /// </summary>
-            public Action<object> Handler { get; set; }
-
-            public FileTypeHandlerMapping() { }
-        }
-
-        /// <summary>
-        /// Deserialize XML file into given Type using XmlSerializer.
-        /// If xml contains a wrapper element with a list, pass typeof(List&lt;T&gt;).
-        /// </summary>
-        private object DeserializeXml(string filePath, Type targetType)
-        {
-            // read file into memory first (so file can be moved safely)
-            string xml;
-            using (var sr = new StreamReader(filePath))
-            {
-                xml = sr.ReadToEnd();
-            }
-
-            var serializer = new XmlSerializer(targetType);
-            using (var reader = new StringReader(xml))
-            {
-                return serializer.Deserialize(reader);
-            }
-        }
-
-        /// <summary>
-        /// Move file to destination folder by copying to temp file and then moving atomically.
-        /// </summary>
-        private void MoveToFolderAtomic(string sourceFileFullPath, string destinationFolder)
-        {
-            string fileName = Path.GetFileName(sourceFileFullPath);
-            string destTemp = Path.Combine(destinationFolder, fileName + ".tmp");
-            string destFinal = Path.Combine(destinationFolder, fileName);
-
-            // ensure destination temp removed
-            if (File.Exists(destTemp)) File.Delete(destTemp);
-            // copy then move
-            File.Copy(sourceFileFullPath, destTemp);
-            if (File.Exists(destFinal)) File.Delete(destFinal);
-            File.Move(destTemp, destFinal);
-
-            // remove original
-            File.Delete(sourceFileFullPath);
-        }
-
         private void SafeShowStatus(string msg)
         {
             if (Form1.Instance != null)
@@ -326,7 +244,6 @@ namespace ASI_POS
                 try { File.AppendAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "download.log"), DateTime.Now + " " + msg + Environment.NewLine); } catch { }
             }
         }
-
     }
     public class FtpDownloadResult
     {

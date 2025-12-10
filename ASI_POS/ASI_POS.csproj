@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="clsSettings.cs" />
+    <Compile Include="Customers.cs" />
     <Compile Include="DownloadLogic.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -67,7 +68,9 @@
     <Compile Include="Model\clsDbSettings.cs" />
     <Compile Include="Model\clsFtpSettings.cs" />
     <Compile Include="Model\clsOthers.cs" />
+    <Compile Include="Model\cus.cs" />
     <Compile Include="Model\GenerateCSV.cs" />
+    <Compile Include="Model\VFPData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">

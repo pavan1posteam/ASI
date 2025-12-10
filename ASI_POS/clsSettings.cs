@@ -23,6 +23,7 @@ namespace ASI_POS
         public string FtpUpFolder { get; set; }
         public string FtpDownFolder { get; set; }
         public int StockedItems { get; set; }
+        public string webstore { get; set; }
         public bool InclNoUpcProducts { get; set; }
         public bool AddDiscountable { get; set; }
         public bool IncludeFloor { get; set; }
@@ -35,6 +36,9 @@ namespace ASI_POS
         public string InvetValue { get; set; }
         public string PrcLevels { get; set; }
         public string Stat { get; set; }
+        public bool updateCustomerFiles { get; set; }
+        public bool updateClubcardNo { get; set; }
+
         public void LoadSettings()
         {
             string json;
@@ -92,6 +96,9 @@ namespace ASI_POS
                     IncludeFloor = others.chkfloor;
                     AllQtyperPack = others.AllQtyPack;
                     Stat = others.Statvalue;
+                    updateCustomerFiles = others.updatecustomerfiles;
+                    updateClubcardNo = others.updatecclubcardnos;
+                    webstore = others.mobilestore;
                 }
             }
         }
