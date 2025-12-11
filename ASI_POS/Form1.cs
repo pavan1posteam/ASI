@@ -205,7 +205,7 @@ namespace ASI_POS
                     CreateStructure();
                     CreateFullNameStructure();
                     #region ASI_POS
-                    string liqtbl = "SELECT " + StoreId + " as Storeid,u.UPC as Upc,s.BACK as qty, s.FLOOR as qty2, u.LEVEL as InetValue, p.LEVEL as prclvl,i.DEPOS as depcode, ";
+                    string liqtbl = "SELECT " + StoreId + " as Storeid,u.UPC as Upc,s.BACK as qty, s.FLOOR as qty2, s.Inet as InetValue, p.LEVEL as prclvl,i.DEPOS as depcode, ";
                     liqtbl += "i.SKU as Sku, i.PACK as pack,i.SNAME as Uom,";
                     liqtbl += "i.NAME as StoreProductName,i.NAME as StoreDescription, i.cat as icat,p.Onsale as Discountable,";
                     liqtbl += "p.PRICE as Price,p.PROMO as promcode, 0 as sprice,p.SALE as sprce1,'' as Start, '' as end, p.DCODE as DiscountCode,'' as altupc1,";
@@ -218,7 +218,7 @@ namespace ASI_POS
                     string taxquery = "Select  CODE as taxcode, RATE as taxrate, cat as tcat, level as taxlevel from txc ";
 
 
-                    string noupcproducts = "Select " + StoreId + " as Storeid,i.SKU as Sku, s.BACK as qty, s.FLOOR as qty2, p.LEVEL as prclvl,i.DEPOS as depcode, ";
+                    string noupcproducts = "Select " + StoreId + " as Storeid,i.SKU as Sku, s.BACK as qty, s.FLOOR as qty2, s.Inet as InetValue, p.LEVEL as prclvl,i.DEPOS as depcode, ";
                     noupcproducts += "i.PACK as pack,i.SNAME as Uom,";
                     noupcproducts += "i.NAME as StoreProductName,i.NAME as StoreDescription,i.cat as icat,p.Onsale as Discountable,";
                     noupcproducts += "p.PRICE as Price,p.PROMO as promcode, 0 as sprice,p.SALE as sprce1,'' as Start, '' as end,p.DCODE as DiscountCode,  '' as altupc1,";
@@ -324,8 +324,8 @@ namespace ASI_POS
                     finalResult.Columns.Add("Deposit", typeof(string));
                     if (settings.AddDiscountable)
                         finalResult.Columns.Add("Discountable", typeof(int));
-                    if (StoreId == 10128)
-                        finalResult.Columns.Add("DiscountCode", typeof(string));
+                    //if (StoreId == 10128)
+                    //    finalResult.Columns.Add("DiscountCode", typeof(string));
                     #endregion
                     #region full name 
                     DataTable fullResult = new DataTable();
@@ -481,7 +481,7 @@ namespace ASI_POS
                         }
                         if (StoreId == 10128 && settings.AddDiscountable)
                         {
-                            newRow["DiscountCode"] = dr["DiscountCode"];
+                            //newRow["DiscountCode"] = dr["DiscountCode"];
                             string code = dr["DiscountCode"].ToString();
                             newRow["Discountable"] = string.IsNullOrWhiteSpace(code) ? 0 : 1;
                         }
@@ -533,7 +533,7 @@ namespace ASI_POS
                             }
                         }
 
-                        if (Inet_Value.Contains(INETVALUE) && PriceLevels.Contains(prcLevel) && INETVALUE.Equals(prcLevel) && pqty >= 0)
+                        if (Inet_Value.Contains(INETVALUE) && PriceLevels.Contains(prcLevel)  && pqty >= 0)//&& INETVALUE.Equals(prcLevel)
                         {
                             if (catlist.Contains(invcat))
                             {
@@ -549,7 +549,6 @@ namespace ASI_POS
                     {
                         HashSet<string> existingSkus = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                         HashSet<string> existingUpcs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
                         foreach (DataRow r in finalResult.Rows)
                         {
                             existingSkus.Add(r["Sku"].ToString().Trim());
@@ -565,6 +564,8 @@ namespace ASI_POS
                             string pcatValue = dr["pcat"].ToString().Trim();
                             string prcLevel = dr["prclvl"].ToString();
                             string sku = dr["Sku"].ToString().Trim();
+                            string INETVALUE = dr["InetValue"].ToString();
+
                             if (string.IsNullOrEmpty(sku))
                                 continue;
 
@@ -656,7 +657,7 @@ namespace ASI_POS
                             }
                             if (StoreId == 10128 && settings.AddDiscountable)
                             {
-                                newRow["DiscountCode"] = dr["DiscountCode"];
+                                //newRow["DiscountCode"] = dr["DiscountCode"];
                                 string code = dr["DiscountCode"].ToString();
                                 newRow["Discountable"] = string.IsNullOrWhiteSpace(code) ? 0 : 1;
                             }
@@ -705,7 +706,7 @@ namespace ASI_POS
                                     break;
                                 }
                             }
-                            if (catlist.Contains(invcat))
+                            if (Inet_Value.Contains(INETVALUE) && catlist.Contains(invcat))// && INETVALUE.Equals(prcLevel)
                             {
                                 fullResult.Rows.Add(fullrow);
                                 finalResult.Rows.Add(newRow);
