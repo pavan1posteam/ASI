@@ -11,3 +11,4 @@ C:\Bottlecapps\MAU\ASI_POS\ASI_POS\obj\Debug\ASI_POS.csproj.CoreCompileInputs.ca
 C:\Bottlecapps\MAU\ASI_POS\ASI_POS\obj\Debug\ASI_POS.csproj.CopyComplete
 C:\Bottlecapps\MAU\ASI_POS\ASI_POS\obj\Debug\ASI_POS.exe
 C:\Bottlecapps\MAU\ASI_POS\ASI_POS\obj\Debug\ASI_POS.pdb
+C:\Bottlecapps\MAU\ASI_POS\ASI_POS\obj\Debug\ASI_POS.csproj.AssemblyReference.cache

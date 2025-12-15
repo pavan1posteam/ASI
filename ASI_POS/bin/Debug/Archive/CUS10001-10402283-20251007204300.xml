@@ -1,0 +1,128 @@
+<?xml version = '1.0' encoding='Windows-1252' standalone='yes'?><VFPData><xsd:schema id="VFPData" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+	<xsd:element name="VFPData" msdata:IsDataSet="true">
+		<xsd:complexType>
+			<xsd:choice maxOccurs="unbounded">
+				<xsd:element name="custable" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="custid">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="email">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="100"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="firstname">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="30"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="lastname">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="30"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="street">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="100"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="city">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="25"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="state">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="zip">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="home">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="30"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="taxcode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="loyaltyno">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="100"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="gender">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							 <xsd:element name="dob">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+								<xsd:element name="AddressFirstName">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="30"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="AddressLastName">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="30"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="AddressContact">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="30"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:choice>
+			<xsd:anyAttribute namespace="http://www.w3.org/XML/1998/namespace" processContents="lax"/>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>
+<custable><custid>10402283</custid><email>chaskaboulton@hotmail.com</email><firstname>Chaska</firstname><lastname>Boulton</lastname><street>10 Emerson St Apt 205</street><city>Denver</city><state>CO</state><zip>80218</zip><home>2109083713</home><taxcode></taxcode><loyaltyno></loyaltyno><gender></gender><dob>2020-12-22</dob><AddressFirstName>Chaska</AddressFirstName><AddressLastName>Boulton</AddressLastName><AddressContact>2109083713</AddressContact></custable> </VFPData>

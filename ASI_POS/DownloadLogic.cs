@@ -65,13 +65,13 @@ namespace ASI_POS
                 xmlcount = xmlFiles.Count;
                 if (xmlFiles.Count == 0)
                 {
-                    SafeShowStatus("0 Files found");
+                    SafeShowStatus("0 Files Found!");
                     return result;
                 }
                 string downloadFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Upload/Download");
                 Directory.CreateDirectory(downloadFolder);
 
-                SafeShowStatus($"{xmlFiles.Count} Files Found");
+                SafeShowStatus($"{xmlFiles.Count} Files Found!");
 
                 foreach (var fileName in xmlFiles)
                 {
@@ -87,7 +87,7 @@ namespace ASI_POS
                     {
                         try
                         {
-                            SafeShowStatus($"Downloading: {fileName}");
+                            SafeShowStatus($"File: {fileName}");
 
                             var req = (FtpWebRequest)WebRequest.Create(new Uri(fileUri));
                             req.Method = WebRequestMethods.Ftp.DownloadFile;
@@ -118,27 +118,9 @@ namespace ASI_POS
                             if (File.Exists(localFinal)) File.Delete(localFinal);
                             File.Move(localTemp, localFinal);
                             result.DownloadedFiles.Add(localFinal);
-                            SafeShowStatus($"Downloaded: {fileName}");
+                            SafeShowStatus($"File: {fileName} Downloaded");
                             success = true;
-                            try
-                            {
-                                var reqDel = (FtpWebRequest)WebRequest.Create(new Uri(fileUri));
-                                reqDel.Method = WebRequestMethods.Ftp.DeleteFile;
-                                reqDel.Credentials = new NetworkCredential(ftpUserID, ftpPassword);
-                                reqDel.UseBinary = true;
-                                reqDel.UsePassive = true;
-                                reqDel.KeepAlive = false;
-                                reqDel.Timeout = 120000;
-                                SafeShowStatus("Deleting file from FTP: " + fileName);
-                                using (var delResp = (FtpWebResponse)reqDel.GetResponse())
-                                {
-
-                                }
-                            }
-                            catch (WebException wexDel)
-                            {
-                                SafeShowStatus($"Warning: could not delete remote file {fileName}: {wexDel.Message}");
-                            }
+                            
                         }
                         catch (WebException wex)
                         {
@@ -154,8 +136,26 @@ namespace ASI_POS
                             try { if (File.Exists(localTemp)) File.Delete(localTemp); } catch { }
                             System.Threading.Thread.Sleep(500 * i);
                         }
-                    } 
+                    }
+                    try
+                    {
+                        var reqDel = (FtpWebRequest)WebRequest.Create(new Uri(fileUri));
+                        reqDel.Method = WebRequestMethods.Ftp.DeleteFile;
+                        reqDel.Credentials = new NetworkCredential(ftpUserID, ftpPassword);
+                        reqDel.UseBinary = true;
+                        reqDel.UsePassive = true;
+                        reqDel.KeepAlive = false;
+                        reqDel.Timeout = 120000;
+                        SafeShowStatus("Deleting file from FTP: " + fileName);
+                        using (var delResp = (FtpWebResponse)reqDel.GetResponse())
+                        {
 
+                        }
+                    }
+                    catch (WebException wexDel)
+                    {
+                        SafeShowStatus($"Warning: Could Not Delete FTP File {fileName}: {wexDel.Message}");
+                    }
                     if (!success)
                     {
                         result.FailedFiles.Add(fileName);
@@ -176,6 +176,7 @@ namespace ASI_POS
                 if(xmlcount > 0)
                 {
                     ProcessDownloadedXmlFiles();
+                    SafeShowStatus("All Done");
                 }
                 SafeShowStatus("Disconnected from FTP");
             }
@@ -199,10 +200,11 @@ namespace ASI_POS
                     {
                         Customers customers = new Customers();
                         flag = customers.customerupdate(fileName, xmlContent);
+                        SafeShowStatus("Customer Update Completed");
                     }
                     else if (Regex.IsMatch(fileName, @"^ORD", RegexOptions.IgnoreCase))
                     {
-
+                        
                     }
                     else if (Regex.IsMatch(fileName, @"^PMT", RegexOptions.IgnoreCase))
                     {
@@ -210,7 +212,6 @@ namespace ASI_POS
                     }
                     if (flag)
                     {
-                        SafeShowStatus($"Processed file: {fileName}");
                         string transferTo = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Archive");
                         if (!Directory.Exists(transferTo))
                             Directory.CreateDirectory(transferTo);
