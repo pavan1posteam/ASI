@@ -76,6 +76,7 @@ namespace ASI_POS
                 chkclubcardno.Checked = settings.updateClubcardNo;
                 txtwebstore.Text = settings.webstore;
                 textMarkUp.Text = settings.MarkUpPrice.ToString();
+                txtservicefee.Text = settings.ServiceFee;
             }
             if (File.Exists("config//cat.txt"))
             {
@@ -139,6 +140,8 @@ namespace ASI_POS
                 clsftp.FtpPassword = txtFTPpwd.Text;
                 clsftp.TaxCode = txttaxcode.Text;
                 clsftp.Asi_StoreId = txtasistoreid.Text;
+                clsftp.mobilestore = txtwebstore.Text;
+                clsftp.service_fee = txtservicefee.Text;
                 Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
                 using (StreamWriter sw = new StreamWriter(@"config\ftpsettings.txt"))
                 using (Newtonsoft.Json.JsonTextWriter writer = new Newtonsoft.Json.JsonTextWriter(sw))
@@ -265,7 +268,7 @@ namespace ASI_POS
             others.Statvalue = txtstat.Text;
             others.updatecustomerfiles = chkupcustomerfiles.Checked;
             others.updatecclubcardnos = chkclubcardno.Checked;
-            others.mobilestore = txtwebstore.Text;
+            
             JsonSerializer serializer = new JsonSerializer();
             using (StreamWriter sw = new StreamWriter(@"config\others.txt"))
             using (JsonTextWriter writer = new JsonTextWriter(sw))

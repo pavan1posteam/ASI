@@ -1,6 +1,7 @@
 ﻿using ASI_POS.Model;
 using System;
 using System.Collections.Generic;
+using System.Data.OleDb;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -137,25 +138,25 @@ namespace ASI_POS
                             System.Threading.Thread.Sleep(500 * i);
                         }
                     }
-                    try
-                    {
-                        var reqDel = (FtpWebRequest)WebRequest.Create(new Uri(fileUri));
-                        reqDel.Method = WebRequestMethods.Ftp.DeleteFile;
-                        reqDel.Credentials = new NetworkCredential(ftpUserID, ftpPassword);
-                        reqDel.UseBinary = true;
-                        reqDel.UsePassive = true;
-                        reqDel.KeepAlive = false;
-                        reqDel.Timeout = 120000;
-                        SafeShowStatus("Deleting file from FTP: " + fileName);
-                        using (var delResp = (FtpWebResponse)reqDel.GetResponse())
-                        {
+                    //try
+                    //{
+                    //    var reqDel = (FtpWebRequest)WebRequest.Create(new Uri(fileUri));
+                    //    reqDel.Method = WebRequestMethods.Ftp.DeleteFile;
+                    //    reqDel.Credentials = new NetworkCredential(ftpUserID, ftpPassword);
+                    //    reqDel.UseBinary = true;
+                    //    reqDel.UsePassive = true;
+                    //    reqDel.KeepAlive = false;
+                    //    reqDel.Timeout = 120000;
+                    //    SafeShowStatus("Deleting file from FTP: " + fileName);
+                    //    using (var delResp = (FtpWebResponse)reqDel.GetResponse())
+                    //    {
 
-                        }
-                    }
-                    catch (WebException wexDel)
-                    {
-                        SafeShowStatus($"Warning: Could Not Delete FTP File {fileName}: {wexDel.Message}");
-                    }
+                    //    }
+                    //}
+                    //catch (WebException wexDel)
+                    //{
+                    //    SafeShowStatus($"Warning: Could Not Delete FTP File {fileName}: {wexDel.Message}");
+                    //}
                     if (!success)
                     {
                         result.FailedFiles.Add(fileName);
@@ -185,54 +186,81 @@ namespace ASI_POS
         {
             var result = new XmlProcessResult();
             string downloadFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Upload/Download");
+            var files = Directory.GetFiles(downloadFolder, "*.xml", SearchOption.TopDirectoryOnly)
+                     .Select(f => new
+                     {
+                         FullPath = f,
+                         Name = Path.GetFileName(f),
+                         Prefix = Regex.Match(Path.GetFileName(f), @"^[A-Z]+", RegexOptions.IgnoreCase).Value.ToUpper()
+                     }).ToList();
+            var cusFiles = files.Where(f => f.Prefix == "CUS").ToList();
+            bool flag = false;
+            //foreach (var f in cusFiles)
+            //{
+            //    try
+            //    {
+            //        SafeShowStatus("Processing file: " + f.Name);
+            //        var xmlContent = File.ReadAllText(f.FullPath);
 
-            var xmlFiles = Directory.GetFiles(downloadFolder, "*.xml", SearchOption.TopDirectoryOnly).OrderBy(f => f).ToList();
-
-            foreach (var fullPath in xmlFiles)
+            //        Customers customers = new Customers();
+            //        flag = customers.customerupdate(f.Name, xmlContent);
+            //        SafeShowStatus("Customer Update Completed");
+            //        if (flag)
+            //        {
+            //            MoveToArchive(f.Name);
+            //            flag = false;
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        flag = false;
+            //        SafeShowStatus($"Processing failed {f.Name}: {ex.Message}");
+            //    }
+            //}
+            var ordFiles = files.Where(f => f.Prefix == "ORD").ToList();
+            var pmtFiles = files.Where(f => f.Prefix == "PMT").ToList();
+            var ordLookup = ordFiles.ToDictionary(f => Regex.Replace(f.Name, @"^(ORD)_?", "", RegexOptions.IgnoreCase), f => f);
+            var pmtLookup = pmtFiles.ToDictionary(f => Regex.Replace(f.Name, @"^(PMT)_?", "", RegexOptions.IgnoreCase), f => f);
+            foreach (var key in ordLookup.Keys)
             {
-                string fileName = Path.GetFileName(fullPath);
-                string xmlContent = File.ReadAllText(fullPath);
-                SafeShowStatus("Processing file: " + fileName);
-                try
+                if (!pmtLookup.TryGetValue(key, out var pmt))
                 {
-                    bool flag = false;
-                    if (Regex.IsMatch(fileName, @"^CUS", RegexOptions.IgnoreCase))
-                    {
-                        Customers customers = new Customers();
-                        flag = customers.customerupdate(fileName, xmlContent);
-                        SafeShowStatus("Customer Update Completed");
-                    }
-                    else if (Regex.IsMatch(fileName, @"^ORD", RegexOptions.IgnoreCase))
-                    {
-                        
-                    }
-                    else if (Regex.IsMatch(fileName, @"^PMT", RegexOptions.IgnoreCase))
-                    {
-
-                    }
-                    if (flag)
-                    {
-                        string transferTo = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Archive");
-                        if (!Directory.Exists(transferTo))
-                            Directory.CreateDirectory(transferTo);
-                        string destinationPath = Path.Combine(transferTo, Path.GetFileName(fileName));
-                        if (File.Exists(downloadFolder + "/" + fileName))
-                        {
-                            if (File.Exists(destinationPath))
-                                File.Delete(destinationPath);
-                            File.Move(downloadFolder + "/" + fileName, destinationPath);
-                        }
-                    }
-
+                    SafeShowStatus($"PMT File Missing for ORD file: {ordLookup[key].Name}");
+                    continue;
                 }
-                catch (Exception ex)
+                string ordXml = File.ReadAllText(ordLookup[key].FullPath);
+                string pmtXml = File.ReadAllText(pmt.FullPath);
+                Match regexMatch = Regex.Match(pmtXml, @"<orderid>(?<Result>\d+)</orderid>");
+                string orderid = regexMatch.Groups["Result"]?.Value;
+                SafeShowStatus($"Processing Order Id: #{orderid}");
+                SafeShowStatus($"Processing Order Id: #{orderid}");
+
+                updateOrders orders = new updateOrders();
+                flag = orders.updateorder(ordLookup[key].Name, ordXml, pmt.Name, pmtXml);
+                if (flag)
                 {
-                    SafeShowStatus($"Processing failed for {fileName}: {ex.Message}");
-                    result.FailedFiles.Add(fileName);
-                    result.Failures[fileName] = ex;
+                    //MoveToArchive(ordLookup[key].Name);
+                    //MoveToArchive(pmt.Name);
+                    flag = false;
                 }
+
             }
             return result;
+        }
+        public void MoveToArchive(string fileName)
+        {
+            string downloadFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Upload/Download");
+            string transferTo = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Archive");
+            if (!Directory.Exists(transferTo))
+                Directory.CreateDirectory(transferTo);
+            string destinationPath = Path.Combine(transferTo, Path.GetFileName(fileName));
+            if (File.Exists(downloadFolder + "/" + fileName))
+            {
+                if (File.Exists(destinationPath))
+                    File.Delete(destinationPath);
+                File.Move(downloadFolder + "/" + fileName, destinationPath);
+            }
+
         }
         private void SafeShowStatus(string msg)
         {
@@ -245,6 +273,147 @@ namespace ASI_POS
                 try { File.AppendAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "download.log"), DateTime.Now + " " + msg + Environment.NewLine); } catch { }
             }
         }
+        public void Install()
+        {
+            SafeShowStatus("Installation Mode!!!");
+            settings.LoadSettings();
+            string columnname = "webcustid";
+            bool flag = false;
+            using (var conn = new OleDbConnection(settings.ConnectionString))
+            using (var cmd = conn.CreateCommand())
+            {
+                conn.Open();
+                cmd.CommandText = $"SELECT {columnname} FROM cus WHERE 1=0";
+                try
+                {
+                    cmd.ExecuteReader();
+                    flag = true;
+                }
+                catch
+                {
+                    flag = false;
+                }
+            }
+            if (!flag)
+            {
+                using (var conn = new OleDbConnection(settings.ConnectionString))
+                using (var cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    cmd.CommandText = $"ALTER TABLE cus ADD COLUMN {columnname} I(4)";
+                    cmd.ExecuteNonQuery();
+                    SafeShowStatus($"Added Column Name {columnname} In CUS Table.");
+                }
+            }
+            else
+            {
+                SafeShowStatus($"Column: {columnname} Is Already Exists.");
+            }
+            try
+            {
+                bool catflag = false;
+                using (var conn = new OleDbConnection(settings.ConnectionString))
+                using (var cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+
+                    cmd.CommandText = @"SELECT COUNT(*) FROM cat c WHERE ALLTRIM(c.cat) == ?";
+                    cmd.Parameters.Add(new OleDbParameter
+                    {
+                        OleDbType = OleDbType.VarChar,
+                        Value = settings.ServiceFee.Trim()
+                    });
+
+                    int exists = Convert.ToInt32(cmd.ExecuteScalar());
+
+                    if (exists > 0)
+                        SafeShowStatus("BC SERVICE FEE Already Exists In CAT Table.");
+                    else
+                        catflag = true;
+                }
+                if (catflag)
+                {
+                    using (var conn = new OleDbConnection(settings.ConnectionString))
+                    {
+                        conn.Open();
+                        bool surflag = false;
+                        using (var cmd = conn.CreateCommand())
+                        {
+                            cmd.CommandText = $"UPDATE cat SET sur = ?";
+                            cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Boolean, Value = true });
+                            int rows = cmd.ExecuteNonQuery();
+                            surflag = true;
+                        }
+                        if (surflag)
+                        {
+                            using (var cmd = conn.CreateCommand())
+                            {
+                                cmd.CommandText = $"INSERT INTO cat(Cat, Name, Seq, Lspace, Code,cost, Taxlevel, Sur, Disc, Dbcr, Cflag, Income, Cog, Inventory, Discount, Who, Tstamp, Wsgroup, Wscod, Wsgallons, Catnum, Fson, Fsfactor, Datacap, Sent, Belowcost, Gosent, Cost_plus)" +
+                                  $"VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = settings.ServiceFee });
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "BC SERVICE FEE" });//Name
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "0" + settings.ServiceFee });//seq
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "0" });//Lspace
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "X" });//Code
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Integer, Value = 0 });//cost
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Integer, Value = 0 });//TaxLevel
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Boolean, Value = false });//Sur
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Boolean, Value = false });//Disc
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Integer, Value = 1 });//Dbcr
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Boolean, Value = false });//Cflag
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "06" + settings.ServiceFee });//Income
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "" });//cog
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "" });//inventory
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "" });//discount
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "" });//who
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Date, Value = DateTime.Now });//tstamp
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "" });//Wsgroup
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "" });//Wscod
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Boolean, Value = false });//Wsgallons
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Integer, Value = 0 });//Catnum
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Boolean, Value = false });//Fson
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Integer, Value = 0 });//Fsfactor
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "" });//Datacap
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Boolean, Value = false });//Sent
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Boolean, Value = false });//Belowcost
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Boolean, Value = true });//Gosent
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Integer, Value = 0 });//Cost_plus
+                                cmd.ExecuteNonQuery();
+                                SafeShowStatus($"Added BC SERVICE FEE in CAT Table.");
+                            }
+                            using (var cmd = conn.CreateCommand())
+                            {
+                                cmd.CommandText = $"INSERT INTO gla(Sequence, Type, Glaccount, Short, Descript,Balance, Lastcheck, Who, Tstamp, Qbooks, Qbooksac, Skipstat, Sent)" +
+                                  $"VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "06" + settings.ServiceFee });//Sequence
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "L" });//type
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "06" + settings.ServiceFee });//Glaccount
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "BC SER CHG" });//short
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "BC SERVICE CHARGE" });//Descript
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Integer, Value = 0 });//Balance
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "" });//Lastcheck
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "" });//Who
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Date, Value = DateTime.Now });//tstamp
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Boolean, Value = false });//Qbooks
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = "" });//Qbooksac
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Boolean, Value = false });//Skipstat
+                                cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Boolean, Value = false });//Sent
+                                cmd.ExecuteNonQuery();
+                                SafeShowStatus($"Added BC SERVICE FEE in GLA Table.");
+                            }
+                        }
+                    }
+                }
+                SafeShowStatus("Installation Done!!!");
+                SafeShowStatus("Change The Required Fields In Settings Tab Before Running!");
+            }
+            catch (Exception ex)
+            {
+                SafeShowStatus($"Error: {ex.Message}");
+                SafeShowStatus("Installation Failed!");
+            }
+        }
+
     }
     public class FtpDownloadResult
     {

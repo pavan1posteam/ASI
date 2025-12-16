@@ -73,6 +73,7 @@
     <Compile Include="Model\VFPData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="updateOrders.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -105,6 +106,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="downloads.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="hammer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="settings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="settings %281%29.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

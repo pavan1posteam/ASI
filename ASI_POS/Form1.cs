@@ -25,6 +25,7 @@ namespace ASI_POS
         DataTable dtfullname = new DataTable();
         clsSettings settings = new clsSettings();
         GenerateCSV generateCSV = new GenerateCSV();
+        DownloadLogic download = new DownloadLogic();
         private static string Argsprams { get; set; }
         public static Form1 Instance;
         string pathProduct1 = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Upload");
@@ -112,7 +113,7 @@ namespace ASI_POS
         {
             if (string.IsNullOrEmpty(str)) return;
 
-            if (listBox1 == null || listBox1.IsDisposed || !_isLoaded)
+            if (dataGridView1 == null || dataGridView1.IsDisposed || !_isLoaded)
             {
                 _pendingStatus.Enqueue(str);
                 return;
@@ -132,9 +133,27 @@ namespace ASI_POS
             }
             try
             {
-                listBox1.Items.Add(str);
-                listBox1.TopIndex = listBox1.Items.Count - 1;
-                listBox1.Refresh();
+                dataGridView1.ColumnCount = 1;
+                dataGridView1.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+                dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+                dataGridView1.RowHeadersVisible = false;
+                dataGridView1.AllowUserToResizeRows = false;
+                dataGridView1.ReadOnly = true;
+                dataGridView1.DefaultCellStyle.Font = new Font("Segoe UI", 12F, FontStyle.Regular);
+                dataGridView1.Rows.Add(str);
+                dataGridView1.CellBorderStyle = DataGridViewCellBorderStyle.None;
+                dataGridView1.GridColor = dataGridView1.BackgroundColor;
+                dataGridView1.AllowUserToAddRows = false;
+                dataGridView1.AllowUserToDeleteRows = false;
+                dataGridView1.AllowUserToResizeColumns = false;
+                dataGridView1.AllowUserToResizeRows = false;
+                dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                dataGridView1.MultiSelect = false;
+                dataGridView1.ScrollBars = ScrollBars.Vertical;
+                
+                dataGridView1.Refresh();
+
             }
             catch
             {
@@ -911,8 +930,12 @@ namespace ASI_POS
 
         private void btndownload_Click(object sender, EventArgs e)// Download
         {
-            DownloadLogic download = new DownloadLogic();
             download.DownloadAllXmlFilesFromFtp();
+        }
+
+        private void button1_Click(object sender, EventArgs e)//Installation
+        {
+            download.Install();
         }
     }
     public static class DataRowExtensions

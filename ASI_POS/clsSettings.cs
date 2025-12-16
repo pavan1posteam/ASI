@@ -24,6 +24,7 @@ namespace ASI_POS
         public string FtpDownFolder { get; set; }
         public int StockedItems { get; set; }
         public string webstore { get; set; }
+        public string ServiceFee { get; set; }
         public bool InclNoUpcProducts { get; set; }
         public bool AddDiscountable { get; set; }
         public bool IncludeFloor { get; set; }
@@ -76,6 +77,8 @@ namespace ASI_POS
                     
                     TaxCode = clsFTP.TaxCode;
                     Asi_Store_Id = clsFTP.Asi_StoreId;
+                    webstore = clsFTP.mobilestore;
+                    ServiceFee = clsFTP.service_fee;
                 }
                 // For Others Settings
                 fileStream = new FileStream(@"config\others.txt", FileMode.Open, FileAccess.Read);
@@ -98,7 +101,6 @@ namespace ASI_POS
                     Stat = others.Statvalue;
                     updateCustomerFiles = others.updatecustomerfiles;
                     updateClubcardNo = others.updatecclubcardnos;
-                    webstore = others.mobilestore;
                 }
             }
         }

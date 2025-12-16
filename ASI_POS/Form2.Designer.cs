@@ -70,6 +70,8 @@ namespace ASI_POS
             this.btnExit = new System.Windows.Forms.Button();
             this.btnOtherSave = new System.Windows.Forms.Button();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.chkclubcardno = new System.Windows.Forms.CheckBox();
+            this.chkupcustomerfiles = new System.Windows.Forms.CheckBox();
             this.txtstat = new System.Windows.Forms.TextBox();
             this.label14 = new System.Windows.Forms.Label();
             this.chkallqtyperpack = new System.Windows.Forms.CheckBox();
@@ -85,10 +87,10 @@ namespace ASI_POS
             this.textMarkUp = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.chkupcustomerfiles = new System.Windows.Forms.CheckBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.txtservicefee = new System.Windows.Forms.TextBox();
             this.label15 = new System.Windows.Forms.Label();
             this.txtwebstore = new System.Windows.Forms.TextBox();
-            this.chkclubcardno = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -159,6 +161,10 @@ namespace ASI_POS
             // panel2
             // 
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Controls.Add(this.txtwebstore);
+            this.panel2.Controls.Add(this.label15);
+            this.panel2.Controls.Add(this.txtservicefee);
+            this.panel2.Controls.Add(this.label16);
             this.panel2.Controls.Add(this.txttaxcode);
             this.panel2.Controls.Add(this.label11);
             this.panel2.Controls.Add(this.txtasistoreid);
@@ -552,8 +558,6 @@ namespace ASI_POS
             // 
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel3.Controls.Add(this.chkclubcardno);
-            this.panel3.Controls.Add(this.txtwebstore);
-            this.panel3.Controls.Add(this.label15);
             this.panel3.Controls.Add(this.chkupcustomerfiles);
             this.panel3.Controls.Add(this.txtstat);
             this.panel3.Controls.Add(this.label14);
@@ -575,6 +579,29 @@ namespace ASI_POS
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(542, 372);
             this.panel3.TabIndex = 12;
+            // 
+            // chkclubcardno
+            // 
+            this.chkclubcardno.AutoSize = true;
+            this.chkclubcardno.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkclubcardno.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.chkclubcardno.Location = new System.Drawing.Point(15, 249);
+            this.chkclubcardno.Name = "chkclubcardno";
+            this.chkclubcardno.Size = new System.Drawing.Size(215, 28);
+            this.chkclubcardno.TabIndex = 41;
+            this.chkclubcardno.Text = "Update Club Card No:";
+            this.chkclubcardno.UseVisualStyleBackColor = true;
+            // 
+            // chkupcustomerfiles
+            // 
+            this.chkupcustomerfiles.AutoSize = true;
+            this.chkupcustomerfiles.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkupcustomerfiles.Location = new System.Drawing.Point(13, 214);
+            this.chkupcustomerfiles.Name = "chkupcustomerfiles";
+            this.chkupcustomerfiles.Size = new System.Drawing.Size(222, 28);
+            this.chkupcustomerfiles.TabIndex = 38;
+            this.chkupcustomerfiles.Text = "Update Customer Files";
+            this.chkupcustomerfiles.UseVisualStyleBackColor = true;
             // 
             // txtstat
             // 
@@ -718,44 +745,37 @@ namespace ASI_POS
             this.label2.Size = new System.Drawing.Size(0, 24);
             this.label2.TabIndex = 14;
             // 
-            // chkupcustomerfiles
+            // label16
             // 
-            this.chkupcustomerfiles.AutoSize = true;
-            this.chkupcustomerfiles.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.chkupcustomerfiles.Location = new System.Drawing.Point(13, 214);
-            this.chkupcustomerfiles.Name = "chkupcustomerfiles";
-            this.chkupcustomerfiles.Size = new System.Drawing.Size(222, 28);
-            this.chkupcustomerfiles.TabIndex = 38;
-            this.chkupcustomerfiles.Text = "Update Customer Files";
-            this.chkupcustomerfiles.UseVisualStyleBackColor = true;
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(19, 264);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(107, 24);
+            this.label16.TabIndex = 25;
+            this.label16.Text = "Service Fee:";
+            // 
+            // txtservicefee
+            // 
+            this.txtservicefee.Location = new System.Drawing.Point(142, 265);
+            this.txtservicefee.Name = "txtservicefee";
+            this.txtservicefee.Size = new System.Drawing.Size(100, 32);
+            this.txtservicefee.TabIndex = 26;
             // 
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(11, 21);
+            this.label15.Location = new System.Drawing.Point(269, 216);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(123, 24);
-            this.label15.TabIndex = 39;
+            this.label15.TabIndex = 40;
             this.label15.Text = "Mobile Store:";
             // 
             // txtwebstore
             // 
-            this.txtwebstore.Location = new System.Drawing.Point(135, 20);
+            this.txtwebstore.Location = new System.Drawing.Point(402, 211);
             this.txtwebstore.Name = "txtwebstore";
             this.txtwebstore.Size = new System.Drawing.Size(100, 32);
-            this.txtwebstore.TabIndex = 40;
-            // 
-            // chkclubcardno
-            // 
-            this.chkclubcardno.AutoSize = true;
-            this.chkclubcardno.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.chkclubcardno.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
-            this.chkclubcardno.Location = new System.Drawing.Point(15, 249);
-            this.chkclubcardno.Name = "chkclubcardno";
-            this.chkclubcardno.Size = new System.Drawing.Size(215, 28);
-            this.chkclubcardno.TabIndex = 41;
-            this.chkclubcardno.Text = "Update Club Card No:";
-            this.chkclubcardno.UseVisualStyleBackColor = true;
+            this.txtwebstore.TabIndex = 41;
             // 
             // Form2
             // 
@@ -845,5 +865,7 @@ namespace ASI_POS
         private System.Windows.Forms.CheckBox chkclubcardno;
         private System.Windows.Forms.TextBox txtwebstore;
         private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.TextBox txtservicefee;
+        private System.Windows.Forms.Label label16;
     }
 }
