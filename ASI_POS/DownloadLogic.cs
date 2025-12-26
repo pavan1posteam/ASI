@@ -143,25 +143,25 @@ namespace ASI_POS
                             System.Threading.Thread.Sleep(500 * i);
                         }
                     }
-                    //try
-                    //{
-                    //    var reqDel = (FtpWebRequest)WebRequest.Create(new Uri(fileUri));
-                    //    reqDel.Method = WebRequestMethods.Ftp.DeleteFile;
-                    //    reqDel.Credentials = new NetworkCredential(ftpUserID, ftpPassword);
-                    //    reqDel.UseBinary = true;
-                    //    reqDel.UsePassive = true;
-                    //    reqDel.KeepAlive = false;
-                    //    reqDel.Timeout = 120000;
-                    //    SafeShowStatus("Deleting file from FTP: " + fileName);
-                    //    using (var delResp = (FtpWebResponse)reqDel.GetResponse())
-                    //    {
+                    try
+                    {
+                        var reqDel = (FtpWebRequest)WebRequest.Create(new Uri(fileUri));
+                        reqDel.Method = WebRequestMethods.Ftp.DeleteFile;
+                        reqDel.Credentials = new NetworkCredential(ftpUserID, ftpPassword);
+                        reqDel.UseBinary = true;
+                        reqDel.UsePassive = true;
+                        reqDel.KeepAlive = false;
+                        reqDel.Timeout = 120000;
+                        SafeShowStatus("Deleting file from FTP: " + fileName);
+                        using (var delResp = (FtpWebResponse)reqDel.GetResponse())
+                        {
 
-                    //    }
-                    //}
-                    //catch (WebException wexDel)
-                    //{
-                    //    SafeShowStatus($"Warning: Could Not Delete FTP File {fileName}: {wexDel.Message}");
-                    //}
+                        }
+                    }
+                    catch (WebException wexDel)
+                    {
+                        SafeShowStatus($"Warning: Could Not Delete FTP File {fileName}: {wexDel.Message}");
+                    }
                     if (!success)
                     {
                         result.FailedFiles.Add(fileName);
@@ -243,28 +243,28 @@ namespace ASI_POS
                      }).ToList();
             var cusFiles = files.Where(f => f.Prefix == "CUS").ToList();
             bool flag = false;
-            //foreach (var f in cusFiles)
-            //{
-            //    try
-            //    {
-            //        SafeShowStatus("Processing file: " + f.Name);
-            //        var xmlContent = File.ReadAllText(f.FullPath);
+            foreach (var f in cusFiles)
+            {
+                try
+                {
+                    SafeShowStatus("Processing file: " + f.Name);
+                    var xmlContent = File.ReadAllText(f.FullPath);
 
-            //        Customers customers = new Customers();
-            //        flag = customers.customerupdate(f.Name, xmlContent);
-            //        SafeShowStatus("Customer Update Completed", 1);
-            //        if (flag)
-            //        {
-            //            MoveToArchive(f.Name);
-            //            flag = false;
-            //        }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        flag = false;
-            //        SafeShowStatus($"Processing failed {f.Name}: {ex.Message}", 2);
-            //    }
-            //}
+                    Customers customers = new Customers();
+                    flag = customers.customerupdate(f.Name, xmlContent);
+                    SafeShowStatus("Customer Update Completed", 1);
+                    if (flag)
+                    {
+                        MoveToArchive(f.Name);
+                        flag = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    flag = false;
+                    SafeShowStatus($"Processing failed {f.Name}: {ex.Message}", 2);
+                }
+            }
             var ordFiles = files.Where(f => f.Prefix == "ORD").ToList();
             var pmtFiles = files.Where(f => f.Prefix == "PMT").ToList();
             var ordLookup = ordFiles.ToDictionary(f => Regex.Replace(f.Name, @"^(ORD)_?", "", RegexOptions.IgnoreCase), f => f);
@@ -286,8 +286,8 @@ namespace ASI_POS
                 flag = orders.updateorder(ordLookup[key].Name, ordXml, pmt.Name, pmtXml);
                 if (flag)
                 {
-                    //MoveToArchive(ordLookup[key].Name);
-                    //MoveToArchive(pmt.Name);
+                    MoveToArchive(ordLookup[key].Name);
+                    MoveToArchive(pmt.Name);
                     flag = false;
                 }
 

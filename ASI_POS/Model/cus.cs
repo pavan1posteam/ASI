@@ -38,7 +38,7 @@ namespace ASI_POS.Model
         public int pack { get; set; }
         public decimal ACOST { get; set; }
         public decimal LCOST { get; set; }
-        public string Onsale { get; set; }
+        //public string Onsale { get; set; }
         public bool fson { get; set; }
         public int fsfactor { get; set; }
     }

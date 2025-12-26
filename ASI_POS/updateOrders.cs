@@ -50,8 +50,9 @@ namespace ASI_POS
             cus cusinfo = ResolveCustomer(Ord_Data, Pmt_Data);
             if (cusinfo == null)
                 return false;
-            List<inv> inventoryinfo = getInvInfo();
-            List<stk> stkinfo = getStkInfo();
+            var orderedSkus = orderLines.Select(o => o.sku);
+            List<inv> inventoryinfo = getInvInfo(orderedSkus);
+            List<stk> stkinfo = getStkInfo(orderedSkus);
             List<txc> txcinfo = getTxcInfo();
             txc taxtable = txcinfo.FirstOrDefault(i => i.Code.Equals(settings.TaxCode));
             if (orderId != -1)
@@ -59,7 +60,7 @@ namespace ASI_POS
                 updateOHDTable(orderId, cusinfo, paymentRow);
                 updateJNHTable(orderId, cusinfo, paymentRow);
                 InsertOddAndJnl_ftItems(orderId, cusinfo, paymentRow, orderLines, inventoryinfo, stkinfo, taxtable);
-
+                return true;
             }
             return false;
         }
@@ -590,9 +591,20 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
 
             return newcusinfo;
         }
-        public List<inv> getInvInfo()
+        public List<inv> getInvInfo(IEnumerable<string> skus)
         {
             settings.LoadSettings();
+            if (skus == null)
+                return new List<inv>();
+
+            var skuList = skus
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Select(s => s.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (skuList.Count == 0)
+                return new List<inv>();
             if (string.IsNullOrWhiteSpace(settings.serverpath))
                 throw new ArgumentException("dbfFolder required", nameof(settings.serverpath));
 
@@ -606,38 +618,46 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
                 using (var conn = new OleDbConnection(settings.ConnectionString))
                 {
                     conn.Open();
-                    string sql = "SELECT * FROM inv";
+                    var placeholders = string.Join(",", skuList.Select(_ => "?"));
+                    string sql = $"SELECT * FROM inv WHERE SKU IN ({placeholders})";
 
                     using (var cmd = new OleDbCommand(sql, conn))
-                    using (var reader = cmd.ExecuteReader())
                     {
-                        while (reader.Read())
+                        foreach (var sku in skuList)
                         {
-                            var c = new inv();
-
-                            string GetString(int idx1)
+                            cmd.Parameters.Add(
+                                new OleDbParameter { OleDbType = OleDbType.Integer, Value = sku }
+                            );
+                        }
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
                             {
-                                if (idx1 < 0) return null;
-                                if (reader.IsDBNull(idx1)) return null;
-                                return reader.GetValue(idx1)?.ToString().Trim();
-                            }
+                                var c = new inv();
 
-                            int GetOrdinalOrMinus(string name)
-                            {
-                                try { return reader.GetOrdinal(name); }
-                                catch (IndexOutOfRangeException) { return -1; }
+                                string GetString(int idx1)
+                                {
+                                    if (idx1 < 0) return null;
+                                    if (reader.IsDBNull(idx1)) return null;
+                                    return reader.GetValue(idx1)?.ToString().Trim();
+                                }
+
+                                int GetOrdinalOrMinus(string name)
+                                {
+                                    try { return reader.GetOrdinal(name); }
+                                    catch (IndexOutOfRangeException) { return -1; }
+                                }
+                                int idx;
+                                idx = GetOrdinalOrMinus("SKU"); if (idx >= 0) c.SKU = GetString(idx);
+                                idx = GetOrdinalOrMinus("NAME"); if (idx >= 0) c.NAME = GetString(idx);
+                                idx = GetOrdinalOrMinus("cat"); if (idx >= 0) c.cat = GetString(idx);
+                                idx = GetOrdinalOrMinus("pack"); if (idx >= 0) { var v = GetString(idx); if (int.TryParse(v, out int wcid)) c.pack = wcid; }
+                                idx = GetOrdinalOrMinus("LCOST"); if (idx >= 0) { var v = GetString(idx); if (decimal.TryParse(v, out decimal wcid)) c.LCOST = wcid; }
+                                idx = GetOrdinalOrMinus("ACOST"); if (idx >= 0) { var v = GetString(idx); if (decimal.TryParse(v, out decimal wcid)) c.ACOST = wcid; }
+                                idx = GetOrdinalOrMinus("fsfactor"); if (idx >= 0) { var v = GetString(idx); if (int.TryParse(v, out int wcid)) c.fsfactor = wcid; }
+                                idx = GetOrdinalOrMinus("fson"); if (idx >= 0) { var v = GetString(idx); if (bool.TryParse(v, out bool wcid)) c.fson = wcid; }
+                                inventory.Add(c);
                             }
-                            int idx;
-                            idx = GetOrdinalOrMinus("SKU"); if (idx >= 0) c.SKU = GetString(idx);
-                            idx = GetOrdinalOrMinus("NAME"); if (idx >= 0) c.NAME = GetString(idx);
-                            idx = GetOrdinalOrMinus("cat"); if (idx >= 0) c.cat = GetString(idx);
-                            idx = GetOrdinalOrMinus("Onsale"); if (idx >= 0) c.Onsale = GetString(idx);
-                            idx = GetOrdinalOrMinus("pack"); if (idx >= 0) { var v = GetString(idx); if (int.TryParse(v, out int wcid)) c.pack = wcid; }
-                            idx = GetOrdinalOrMinus("LCOST"); if (idx >= 0) { var v = GetString(idx); if (decimal.TryParse(v, out decimal wcid)) c.LCOST = wcid; }
-                            idx = GetOrdinalOrMinus("ACOST"); if (idx >= 0) { var v = GetString(idx); if (decimal.TryParse(v, out decimal wcid)) c.ACOST = wcid; }
-                            idx = GetOrdinalOrMinus("fsfactor"); if (idx >= 0) { var v = GetString(idx); if (int.TryParse(v, out int wcid)) c.fsfactor = wcid; }
-                            idx = GetOrdinalOrMinus("fson"); if (idx >= 0) { var v = GetString(idx); if (bool.TryParse(v, out bool wcid)) c.fson = wcid; }
-                            inventory.Add(c);
                         }
                     }
                     conn.Close();
@@ -654,9 +674,20 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
 
             return inventory;
         }
-        public List<stk> getStkInfo()
+        public List<stk> getStkInfo(IEnumerable<string> skus)
         {
             settings.LoadSettings();
+            if (skus == null)
+                return new List<stk>();
+
+            var skuList = skus
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Select(s => s.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (skuList.Count == 0)
+                return new List<stk>();
             if (string.IsNullOrWhiteSpace(settings.serverpath))
                 throw new ArgumentException("dbfFolder required", nameof(settings.serverpath));
 
@@ -670,35 +701,45 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
                 using (var conn = new OleDbConnection(settings.ConnectionString))
                 {
                     conn.Open();
-                    string sql = "SELECT * FROM stk";
+                    var placeholders = string.Join(",", skuList.Select(_ => "?"));
+                    string sql = $"SELECT * FROM stk WHERE SKU IN ({placeholders})";
 
                     using (var cmd = new OleDbCommand(sql, conn))
-                    using (var reader = cmd.ExecuteReader())
                     {
-                        while (reader.Read())
+                        foreach (var sku in skuList)
                         {
-                            var c = new stk();
-
-                            string GetString(int idx1)
+                            cmd.Parameters.Add(
+                                new OleDbParameter { OleDbType = OleDbType.Integer, Value = sku }
+                            );
+                        }
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
                             {
-                                if (idx1 < 0) return null;
-                                if (reader.IsDBNull(idx1)) return null;
-                                return reader.GetValue(idx1)?.ToString().Trim();
-                            }
+                                var c = new stk();
 
-                            int GetOrdinalOrMinus(string name)
-                            {
-                                try { return reader.GetOrdinal(name); }
-                                catch (IndexOutOfRangeException) { return -1; }
+                                string GetString(int idx1)
+                                {
+                                    if (idx1 < 0) return null;
+                                    if (reader.IsDBNull(idx1)) return null;
+                                    return reader.GetValue(idx1)?.ToString().Trim();
+                                }
+
+                                int GetOrdinalOrMinus(string name)
+                                {
+                                    try { return reader.GetOrdinal(name); }
+                                    catch (IndexOutOfRangeException) { return -1; }
+                                }
+                                int idx;
+                                idx = GetOrdinalOrMinus("SKU"); if (idx >= 0) c.SKU = GetString(idx);
+                                idx = GetOrdinalOrMinus("Store"); if (idx >= 0) { var v = GetString(idx); if (int.TryParse(v, out int wcid)) c.Store = wcid; }
+                                idx = GetOrdinalOrMinus("ACOST"); if (idx >= 0) { var v = GetString(idx); if (decimal.TryParse(v, out decimal wcid)) c.ACOST = wcid; }
+                                idx = GetOrdinalOrMinus("LCOST"); if (idx >= 0) { var v = GetString(idx); if (decimal.TryParse(v, out decimal wcid)) c.LCOST = wcid; }
+                                inventory.Add(c);
                             }
-                            int idx;
-                            idx = GetOrdinalOrMinus("SKU"); if (idx >= 0) c.SKU = GetString(idx);
-                            idx = GetOrdinalOrMinus("Store"); if (idx >= 0) { var v = GetString(idx); if (int.TryParse(v, out int wcid)) c.Store = wcid; }
-                            idx = GetOrdinalOrMinus("ACOST"); if (idx >= 0) { var v = GetString(idx); if (decimal.TryParse(v, out decimal wcid)) c.ACOST = wcid; }
-                            idx = GetOrdinalOrMinus("LCOST"); if (idx >= 0) { var v = GetString(idx); if (decimal.TryParse(v, out decimal wcid)) c.LCOST = wcid; }
-                            inventory.Add(c);
                         }
                     }
+                    
                     conn.Close();
                 }
             }
