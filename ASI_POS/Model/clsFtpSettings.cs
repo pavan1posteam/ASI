@@ -12,9 +12,8 @@ namespace ASI_POS.Model
         public string Server { get; set; }
         public string FtpUserName { get; set; }
         public string FtpPassword { get; set; }
-        public string TaxCode { get; set; }
         public string Asi_StoreId { get; set; }
         public string mobilestore { get; set; }
-        public string service_fee { get; set; }
+        
     }
 }

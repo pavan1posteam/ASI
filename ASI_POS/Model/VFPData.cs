@@ -63,7 +63,6 @@ namespace ASI_POS.Model
         public decimal shippingcost { get; set; }
         public string zipcodeextension { get; set; } = null;
     }
-    
     public class ordtable
     {
         public string orderid { get; set; }

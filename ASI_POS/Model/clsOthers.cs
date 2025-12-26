@@ -20,6 +20,10 @@ namespace ASI_POS.Model
         public string Statvalue { get; set; }
         public bool updatecustomerfiles { get; set; }
         public bool updatecclubcardnos { get; set; }
+        public bool enablefrequentFile { get; set; }
+        public string mobileregister { get; set; }
+        public string mobilecashier { get; set; }
+
 
     }
 }

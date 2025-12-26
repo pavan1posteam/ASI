@@ -48,7 +48,7 @@ namespace ASI_POS
         private void Form1_Load(object sender, EventArgs e)
         {
             _isLoaded = true;
-
+            InitStatusGrid();
             while (_pendingStatus.TryDequeue(out var msg))
             {
                 try { ShowStatus(msg); } catch {  }
@@ -102,14 +102,7 @@ namespace ASI_POS
             Cursor.Current = Cursors.WaitCursor;
             Cursor.Current = Cursors.Default;
         }
-        //public void ShowStatus(string str)
-        //{
-        //    var item = str;
-        //    listBox1.Items.Add(item);
-        //    listBox1.Refresh();
-        //}
-
-        public void ShowStatus(string str)
+        public void ShowStatus(string str, int c = 0)
         {
             if (string.IsNullOrEmpty(str)) return;
 
@@ -121,47 +114,86 @@ namespace ASI_POS
 
             if (this.InvokeRequired)
             {
-                try
-                {
-                    this.BeginInvoke(new Action<string>(ShowStatus), str);
-                }
-                catch
-                {
-                    _pendingStatus.Enqueue(str);
-                }
+                this.BeginInvoke(new Action<string, int>(ShowStatus), str, c);
                 return;
             }
+
             try
             {
-                dataGridView1.ColumnCount = 1;
-                dataGridView1.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                dataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-                dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-                dataGridView1.RowHeadersVisible = false;
-                dataGridView1.AllowUserToResizeRows = false;
-                dataGridView1.ReadOnly = true;
-                dataGridView1.DefaultCellStyle.Font = new Font("Segoe UI", 12F, FontStyle.Regular);
-                dataGridView1.Rows.Add(str);
-                dataGridView1.CellBorderStyle = DataGridViewCellBorderStyle.None;
-                dataGridView1.GridColor = dataGridView1.BackgroundColor;
-                dataGridView1.AllowUserToAddRows = false;
-                dataGridView1.AllowUserToDeleteRows = false;
-                dataGridView1.AllowUserToResizeColumns = false;
-                dataGridView1.AllowUserToResizeRows = false;
-                dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-                dataGridView1.MultiSelect = false;
-                dataGridView1.ScrollBars = ScrollBars.Vertical;
-                
-                dataGridView1.Refresh();
+                Color color = Color.Black;
+                if (c == 1) color = Color.DarkGreen;
+                else if (c == 2) color = Color.Red;
+                else if (c == 3) color = Color.Blue;
 
+                int rowIndex = dataGridView1.Rows.Add(str);
+                dataGridView1.Rows[rowIndex].DefaultCellStyle.ForeColor = color;
+                dataGridView1.ClearSelection();
+                dataGridView1.Rows[rowIndex].Selected = true;
+                dataGridView1.FirstDisplayedScrollingRowIndex = rowIndex;
+                dataGridView1.Refresh();
             }
             catch
             {
                 _pendingStatus.Enqueue(str);
             }
         }
+        //public void ShowStatus(string str, int c = 0)
+        //{
+        //    if (string.IsNullOrEmpty(str)) return;
 
+        //    if (dataGridView1 == null || dataGridView1.IsDisposed || !_isLoaded)
+        //    {
+        //        _pendingStatus.Enqueue(str);
+        //        return;
+        //    }
 
+        //    if (this.InvokeRequired)
+        //    {
+        //        try
+        //        {
+        //            this.BeginInvoke(new Action<string, int>(ShowStatus), str);
+        //        }
+        //        catch
+        //        {
+        //            _pendingStatus.Enqueue(str);
+        //        }
+        //        return;
+        //    }
+        //    try
+        //    {
+        //        Color colorname = Color.Black;
+        //        if (c == 1)
+        //            colorname = Color.Green;
+        //        else if (c == 2)
+        //            colorname = Color.Red;
+        //        dataGridView1.ColumnCount = 1;
+        //        dataGridView1.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+        //        dataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+        //        dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+        //        dataGridView1.RowHeadersVisible = false;
+        //        dataGridView1.AllowUserToResizeRows = false;
+        //        dataGridView1.ReadOnly = true;
+        //        dataGridView1.DefaultCellStyle.Font = new Font("Segoe UI", 12F, FontStyle.Regular);
+        //        dataGridView1.DefaultCellStyle.ForeColor = colorname;
+        //        dataGridView1.Rows.Add(str);
+        //        dataGridView1.CellBorderStyle = DataGridViewCellBorderStyle.None;
+        //        dataGridView1.GridColor = dataGridView1.BackgroundColor;
+        //        dataGridView1.AllowUserToAddRows = false;
+        //        dataGridView1.AllowUserToDeleteRows = false;
+        //        dataGridView1.AllowUserToResizeColumns = false;
+        //        dataGridView1.AllowUserToResizeRows = false;
+        //        dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        //        dataGridView1.MultiSelect = false;
+        //        dataGridView1.ScrollBars = ScrollBars.Vertical;
+
+        //        dataGridView1.Refresh();
+
+        //    }
+        //    catch
+        //    {
+        //        _pendingStatus.Enqueue(str);
+        //    }
+        //}
         private void btnUpload_Click(object sender, EventArgs e)
         {
             Uploading();
@@ -169,9 +201,11 @@ namespace ASI_POS
         private void Uploading()
         {
             settings.LoadSettings();
+            DataTable dtResult = new DataTable();
+            DataTable dtfullname = new DataTable();
             if (new FileInfo(@"config\dbsettings.txt").Length != 0 && new FileInfo(@"config\ftpsettings.txt").Length != 0) 
             {
-                ShowStatus("Connecting to Database");
+                ShowStatus("Connecting to Database", 1);
                 string jsoncats;
                 var FileStream = new FileStream(@"config\cat.txt", FileMode.Open, FileAccess.Read);
                 using (var StreamReader = new StreamReader(FileStream, Encoding.UTF8))
@@ -221,8 +255,8 @@ namespace ASI_POS
                     var values = settings.Stat.Split(',').Select(x => x.Trim()).Where(x => int.TryParse(x, out _)).Select(x => $"'{x}'");   
                     string stat = string.Join(",", values);
 
-                    CreateStructure();
-                    CreateFullNameStructure();
+                    dtResult = CreateStructure();
+                    dtfullname = CreateFullNameStructure();
                     #region ASI_POS
                     string liqtbl = "SELECT " + StoreId + " as Storeid,u.UPC as Upc,s.BACK as qty, s.FLOOR as qty2, s.Inet as InetValue, p.LEVEL as prclvl,i.DEPOS as depcode, ";
                     liqtbl += "i.SKU as Sku, i.PACK as pack,i.SNAME as Uom,";
@@ -235,7 +269,8 @@ namespace ASI_POS
                     string depositquery = "Select DEPOS as depcode, UNIT as depositvalue from DEP";
                     string saledatequery = "Select  PROMO as promocode, START as sdate, STOP as edate from slh";
                     string taxquery = "Select  CODE as taxcode, RATE as taxrate, cat as tcat, level as taxlevel from txc ";
-
+                    //string frequentfilequery = "Select count(*) from cus where fson = .T.";
+                    string frequentfilequery = "SELECT " + StoreId + " as Storeid,IIF(EMPTY(fscpts), 0, fscpts) + 0 AS currentfs,IIF(EMPTY(fsdlrcrdts), 0, fsdlrcrdts) + 0 AS cdollars,IIF(EMPTY(fscpts), 0, fscpts) + 0 AS points2c,clubcard as clubcard,altid as altid  FROM cus where fson = .T.";
 
                     string noupcproducts = "Select " + StoreId + " as Storeid,i.SKU as Sku, s.BACK as qty, s.FLOOR as qty2, s.Inet as InetValue, p.LEVEL as prclvl,i.DEPOS as depcode, ";
                     noupcproducts += "i.PACK as pack,i.SNAME as Uom,";
@@ -273,49 +308,71 @@ namespace ASI_POS
                     DataTable dtsdatecode = new DataTable();
                     DataTable dtnoupc = new DataTable();
                     DataTable dttaxcode = new DataTable();
-
-                    using (OleDbConnection con = new OleDbConnection(ConnectionString))
+                    DataTable dtFScode = new DataTable();
+                    try
                     {
-                        using (OleDbCommand cmd = new OleDbCommand(liqtbl, con))
+                        using (OleDbConnection con = new OleDbConnection(ConnectionString))
                         {
-                            using (OleDbDataAdapter adp = new OleDbDataAdapter(cmd))
+                            using (OleDbCommand cmd = new OleDbCommand(liqtbl, con))
                             {
-                                adp.Fill(dtLiqcode);
-                                ShowStatus("Retrieving Data");
+                                using (OleDbDataAdapter adp = new OleDbDataAdapter(cmd))
+                                {
+                                    adp.Fill(dtLiqcode);
+                                    ShowStatus("Retrieving Data", 3);
+                                }
                             }
-                        }
-                        using (OleDbCommand cmd = new OleDbCommand(depositquery, con))
-                        {
-                            using (OleDbDataAdapter adp1 = new OleDbDataAdapter(cmd))
+                            using (OleDbCommand cmd = new OleDbCommand(depositquery, con))
                             {
-                                adp1.Fill(dtdepositcode);
+                                using (OleDbDataAdapter adp1 = new OleDbDataAdapter(cmd))
+                                {
+                                    adp1.Fill(dtdepositcode);
+                                }
                             }
-                        }
-                        using (OleDbCommand cmd = new OleDbCommand(saledatequery, con))
-                        {
-                            using (OleDbDataAdapter adp2 = new OleDbDataAdapter(cmd))
-                            {
-                                adp2.Fill(dtsdatecode);
-                            }
-                        }
-                        using (OleDbCommand cmd = new OleDbCommand(taxquery, con))
-                        {
-                            using (OleDbDataAdapter adp2 = new OleDbDataAdapter(cmd))
-                            {
-                                adp2.Fill(dttaxcode);
-                            }
-                        }
-                        if (settings.InclNoUpcProducts)
-                        {
-                            using (OleDbCommand cmd = new OleDbCommand(noupcproducts, con))
+                            using (OleDbCommand cmd = new OleDbCommand(saledatequery, con))
                             {
                                 using (OleDbDataAdapter adp2 = new OleDbDataAdapter(cmd))
                                 {
-                                    adp2.Fill(dtnoupc);
+                                    adp2.Fill(dtsdatecode);
+                                }
+                            }
+                            using (OleDbCommand cmd = new OleDbCommand(taxquery, con))
+                            {
+                                using (OleDbDataAdapter adp2 = new OleDbDataAdapter(cmd))
+                                {
+                                    adp2.Fill(dttaxcode);
+                                }
+                            }
+                            if (settings.InclNoUpcProducts)
+                            {
+                                using (OleDbCommand cmd = new OleDbCommand(noupcproducts, con))
+                                {
+                                    using (OleDbDataAdapter adp2 = new OleDbDataAdapter(cmd))
+                                    {
+                                        adp2.Fill(dtnoupc);
+                                    }
+                                }
+                            }
+                            if (settings.FrequentFile)
+                            {
+                                using (OleDbCommand cmd = new OleDbCommand(frequentfilequery, con))
+                                {
+                                    using (OleDbDataAdapter adp2 = new OleDbDataAdapter(cmd))
+                                    {
+                                        adp2.Fill(dtFScode);
+                                    }
                                 }
                             }
                         }
                     }
+                    catch (OleDbException ex)
+                    {
+                        ShowStatus($"OleDbException: {ex.Message}", 2);
+                    }
+                    catch (Exception ex)
+                    {
+                        ShowStatus($"Error: {ex.Message}", 2);
+                    }
+                    
                     #region Product File
                     DataTable finalResult = new DataTable();
                     finalResult.Columns.Add("StoreId", typeof(string));
@@ -361,6 +418,12 @@ namespace ASI_POS
                     fullResult.Columns.Add("country", typeof(string));
                     fullResult.Columns.Add("region", typeof(string));
                     #endregion
+                    DataTable FrequentResult = new DataTable();
+                    FrequentResult.Columns.Add("StoreId", typeof(string));
+                    FrequentResult.Columns.Add("currentfs", typeof(decimal));
+                    FrequentResult.Columns.Add("cdollars", typeof(decimal));
+                    FrequentResult.Columns.Add("points2c", typeof(decimal));
+                    FrequentResult.Columns.Add("loyaltyno", typeof(string));
                     var taxLookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                     foreach (DataRow tr in dttaxcode.Rows)
                     {
@@ -736,10 +799,31 @@ namespace ASI_POS
                             
                         }
                     }
-
+                    if (settings.FrequentFile)
+                    {
+                        decimal fscusamount = Getfscusamount();
+                        foreach (DataRow dr in dtFScode.Rows)
+                        {
+                            DataRow data = FrequentResult.NewRow();
+                            //string fixClub = settings.FrequentFile ? (dr["altid"].ToString() ?? "").Trim(): (dr["clubcard"].ToString() ?? "").Trim();
+                            string fixClub = (dr["clubcard"].ToString() ?? "").Trim();
+                            if (fixClub.Length == 0)
+                                fixClub = (dr["clubcard"].ToString() ?? "").Trim();
+                            string fixClub2 = new string(fixClub.Where(char.IsDigit).ToArray());
+                            if (!string.IsNullOrEmpty(fixClub2))
+                            {
+                                data["StoreId"] = dr["Storeid"];
+                                data["currentfs"] = dr["currentfs"];
+                                data["cdollars"] = dr["cdollars"];
+                                data["points2c"] = fscusamount > Convert.ToDecimal(dr["points2c"]) ? 0 : fscusamount - Convert.ToDecimal(dr["points2c"]);
+                                data["loyaltyno"] = "#" + fixClub2.Trim();
+                                FrequentResult.Rows.Add(data);
+                            }
+                        }
+                    }
                     ShowStatus("Generating csv file");
                     string filename = generateCSV.GenerateCSVFile(finalResult);
-                    ShowStatus("Connecting to FTP");
+                    ShowStatus("Connecting to FTP", 3);
                     Upload("Upload//" + filename);
                     ShowStatus("Uploading " + filename);
                     if (File.Exists("Upload//" + filename))
@@ -752,7 +836,8 @@ namespace ASI_POS
                     filename = generateCSV.GenerateCSVFile(fullResult);
                     ShowStatus("Uploading " + filename);
                     Upload("Upload//" + filename);
-                    ShowStatus("Inventory Upload completed");
+                    if (!settings.FrequentFile)
+                        ShowStatus("Inventory Upload completed", 1);
                     if (File.Exists("Upload//" + filename))
                     {
                         if (File.Exists("Upload//" + filename))
@@ -760,17 +845,31 @@ namespace ASI_POS
                             File.Delete("Upload//" + filename);
                         }
                     }
-                    ShowStatus("Disconnected from FTP");
+                    if (settings.FrequentFile)
+                    {
+                        filename = generateCSV.GenerateCSVFile(FrequentResult, true);
+                        ShowStatus("Uploading " + filename);
+                        Upload("Upload//" + filename);
+                        ShowStatus("Inventory Upload completed", 1);
+                        if (File.Exists("Upload//" + filename))
+                        {
+                            if (File.Exists("Upload//" + filename))
+                            {
+                                File.Delete("Upload//" + filename);
+                            }
+                        }
+                    }
+                    ShowStatus("Disconnected from FTP", 3);
                 }
                 else
                 {
-                    ShowStatus("Please do all the setting !");
+                    ShowStatus("Please do all the setting !", 2);
                 }
 
             }
             else
             {
-                MessageBox.Show("All the Setting are required !", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ShowStatus($"Error: All the Setting are required !", 2);
             }
         }
         public decimal ComputeTaxRateForInv(DataRow drProduct, string ecTaxCode, DataTable dtTxc, List<clscategory> cats)
@@ -794,54 +893,61 @@ namespace ASI_POS
             return taxRate;
         }
 
-        private void CreateStructure()
+        private DataTable CreateStructure()
         {
-            DataColumn col1 = new DataColumn("storeid");
-            dtResult.Columns.Add(col1);
-            DataColumn col2 = new DataColumn("upc");
-            dtResult.Columns.Add(col2);
-            DataColumn col3 = new DataColumn("qty", typeof(double));
-            dtResult.Columns.Add(col3);
-            DataColumn col4 = new DataColumn("sku");
-            dtResult.Columns.Add(col4);
-            DataColumn col5 = new DataColumn("pack");
-            dtResult.Columns.Add(col5);
-            DataColumn col6 = new DataColumn("uom");
-            dtResult.Columns.Add(col6);
-            DataColumn col7 = new DataColumn("StoreProductName");
-            dtResult.Columns.Add(col7);
-            DataColumn col8 = new DataColumn("Storedescription");
-            dtResult.Columns.Add(col8);
-            DataColumn col9 = new DataColumn("price", typeof(double));
-            dtResult.Columns.Add(col9);
-            DataColumn col10 = new DataColumn("sprice", typeof(double));
-            dtResult.Columns.Add(col10);
-            DataColumn col11 = new DataColumn("start");
-            dtResult.Columns.Add(col11);
-            DataColumn col12 = new DataColumn("end");
-            dtResult.Columns.Add(col12);
-            DataColumn col13 = new DataColumn("tax");
-            dtResult.Columns.Add(col13);
-            DataColumn col14 = new DataColumn("altupc1");
-            dtResult.Columns.Add(col14);
-            DataColumn col15 = new DataColumn("altupc2");
-            dtResult.Columns.Add(col15);
-            DataColumn col16 = new DataColumn("altupc3");
-            dtResult.Columns.Add(col16);
-            DataColumn col17 = new DataColumn("altupc4");
-            dtResult.Columns.Add(col17);
-            DataColumn col18 = new DataColumn("altupc5");
-            dtResult.Columns.Add(col18);
-            DataColumn col19 = new DataColumn("Deposit", typeof(double));
-            dtResult.Columns.Add(col19);
-            if (StoreId == 11174)   
+            try
             {
-                DataColumn col20 = new DataColumn("Pcat");
-                dtResult.Columns.Add(col20);
+                DataTable dtResult = new DataTable();
+                DataColumn col1 = new DataColumn("storeid");
+                dtResult.Columns.Add(col1);
+                DataColumn col2 = new DataColumn("upc");
+                dtResult.Columns.Add(col2);
+                DataColumn col3 = new DataColumn("qty", typeof(double));
+                dtResult.Columns.Add(col3);
+                DataColumn col4 = new DataColumn("sku");
+                dtResult.Columns.Add(col4);
+                DataColumn col5 = new DataColumn("pack");
+                dtResult.Columns.Add(col5);
+                DataColumn col6 = new DataColumn("uom");
+                dtResult.Columns.Add(col6);
+                DataColumn col7 = new DataColumn("StoreProductName");
+                dtResult.Columns.Add(col7);
+                DataColumn col8 = new DataColumn("Storedescription");
+                dtResult.Columns.Add(col8);
+                DataColumn col9 = new DataColumn("price", typeof(double));
+                dtResult.Columns.Add(col9);
+                DataColumn col10 = new DataColumn("sprice", typeof(double));
+                dtResult.Columns.Add(col10);
+                DataColumn col11 = new DataColumn("start");
+                dtResult.Columns.Add(col11);
+                DataColumn col12 = new DataColumn("end");
+                dtResult.Columns.Add(col12);
+                DataColumn col13 = new DataColumn("tax");
+                dtResult.Columns.Add(col13);
+                DataColumn col14 = new DataColumn("altupc1");
+                dtResult.Columns.Add(col14);
+                DataColumn col15 = new DataColumn("altupc2");
+                dtResult.Columns.Add(col15);
+                DataColumn col16 = new DataColumn("altupc3");
+                dtResult.Columns.Add(col16);
+                DataColumn col17 = new DataColumn("altupc4");
+                dtResult.Columns.Add(col17);
+                DataColumn col18 = new DataColumn("altupc5");
+                dtResult.Columns.Add(col18);
+                DataColumn col19 = new DataColumn("Deposit", typeof(double));
+                dtResult.Columns.Add(col19);
+                if (StoreId == 11174)
+                {
+                    DataColumn col20 = new DataColumn("Pcat");
+                    dtResult.Columns.Add(col20);
+                }
             }
+            catch (Exception) { }
+            return dtResult;
         }
-        private void CreateFullNameStructure()
+        private DataTable CreateFullNameStructure()
         {
+            DataTable dtfullname = new DataTable();
             DataColumn col1 = new DataColumn("pname");
             dtfullname.Columns.Add(col1);
             DataColumn col2 = new DataColumn("pdesc");
@@ -866,6 +972,7 @@ namespace ASI_POS
             dtfullname.Columns.Add(col11);
             DataColumn col12 = new DataColumn("region");
             dtfullname.Columns.Add(col12);
+            return dtfullname;
         }
         private void Upload(string filename)
         {
@@ -909,7 +1016,7 @@ namespace ASI_POS
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Upload Error");
+                ShowStatus($"FTP Error: {ex.Message}", 2);
             }
         }
 
@@ -922,6 +1029,39 @@ namespace ASI_POS
         //        Environment.Exit(Environment.ExitCode);
         //    }
         //}
+        public decimal Getfscusamount()
+        {
+            settings.LoadSettings();
+
+            if (string.IsNullOrWhiteSpace(settings.serverpath))
+                throw new ArgumentException("DBF folder not configured (serverpath).");
+
+            string connStr = settings.ConnectionString;
+            if (string.IsNullOrWhiteSpace(connStr))
+                throw new ArgumentException("ConnectionString missing in settings.");
+
+            try
+            {
+                using(var conn = new OleDbConnection(connStr))
+                using (var cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+
+                    cmd.CommandText = "SELECT DATA FROM cnt WHERE CODE = ?";
+                    cmd.Parameters.Add(new OleDbParameter("p1", OleDbType.VarChar) { Value = "FSREDIMLVL" });
+
+                    object obj = cmd.ExecuteScalar();
+                    return obj == null || obj == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(obj);
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowStatus($"Frequent failed: {ex.Message}",2);
+                return 0;
+            }
+        }
 
         private void btnExit_Click(object sender, EventArgs e)
         {
@@ -937,6 +1077,30 @@ namespace ASI_POS
         {
             download.Install();
         }
+        private void InitStatusGrid()
+        {
+            dataGridView1.ColumnCount = 1;
+            dataGridView1.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+
+            dataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            dataGridView1.RowHeadersVisible = false;
+            dataGridView1.ReadOnly = true;
+
+            dataGridView1.CellBorderStyle = DataGridViewCellBorderStyle.None;
+            dataGridView1.GridColor = dataGridView1.BackgroundColor;
+            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridView1.MultiSelect = false;
+            dataGridView1.ScrollBars = ScrollBars.Vertical;
+
+            dataGridView1.AllowUserToAddRows = false;
+            dataGridView1.AllowUserToDeleteRows = false;
+            dataGridView1.AllowUserToResizeColumns = false;
+            dataGridView1.AllowUserToResizeRows = false;
+
+            dataGridView1.DefaultCellStyle.Font = new Font("Segoe UI", 12F, FontStyle.Regular);
+        }
+
     }
     public static class DataRowExtensions
     {

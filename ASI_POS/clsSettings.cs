@@ -39,7 +39,17 @@ namespace ASI_POS
         public string Stat { get; set; }
         public bool updateCustomerFiles { get; set; }
         public bool updateClubcardNo { get; set; }
-
+        public string Mobile_Register { get; set; }
+        public string Mobile_Cashier { get; set; }
+        public string ShippingCat { get; set; }
+        public string TipCat { get; set; }
+        public string DiscountCat { get; set; }
+        public string visa { get; set; }
+        public string amex { get; set; }
+        public string mastercard { get; set; }
+        public string discover { get; set; }
+        public string generic { get; set; }
+        public bool FrequentFile { get; set; }
         public void LoadSettings()
         {
             string json;
@@ -57,6 +67,16 @@ namespace ASI_POS
                     serverpath = clsdb.selectpath;
                     FtpUpFolder = clsdb.UpFolder;
                     FtpDownFolder = clsdb.DownFolder;
+                    TaxCode = clsdb.TaxCode;
+                    ServiceFee = clsdb.service_fee;
+                    ShippingCat = clsdb.shipCat;
+                    TipCat = clsdb.tipCat;
+                    DiscountCat = clsdb.discountCat;
+                    visa = clsdb.visa;
+                    amex = clsdb.amex;
+                    mastercard = clsdb.mastercard;
+                    discover = clsdb.discover;
+                    generic = clsdb.generic;
                 }
                     
 
@@ -74,11 +94,8 @@ namespace ASI_POS
                     FtpServer = clsFTP.Server;
                     FtpUserName = clsFTP.FtpUserName;
                     FtpPassword = clsFTP.FtpPassword;
-                    
-                    TaxCode = clsFTP.TaxCode;
                     Asi_Store_Id = clsFTP.Asi_StoreId;
                     webstore = clsFTP.mobilestore;
-                    ServiceFee = clsFTP.service_fee;
                 }
                 // For Others Settings
                 fileStream = new FileStream(@"config\others.txt", FileMode.Open, FileAccess.Read);
@@ -101,6 +118,9 @@ namespace ASI_POS
                     Stat = others.Statvalue;
                     updateCustomerFiles = others.updatecustomerfiles;
                     updateClubcardNo = others.updatecclubcardnos;
+                    Mobile_Register = others.mobileregister;
+                    Mobile_Cashier = others.mobilecashier;
+                    FrequentFile = others.enablefrequentFile;
                 }
             }
         }

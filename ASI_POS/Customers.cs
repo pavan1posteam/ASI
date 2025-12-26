@@ -18,7 +18,7 @@ namespace ASI_POS
         private object ToDbValue(string s) => string.IsNullOrWhiteSpace(s) ? "" : s.Trim();
         public bool customerupdate(string fileName, string content)
         {
-            SafeShowStatus("Updating Customer");
+            SafeShowStatus("Updating Customer", 3);
             fileName = Regex.Replace(fileName, @".xml$", "",RegexOptions.IgnoreCase);
             settings.LoadSettings();
             XmlSerializer serializer = new XmlSerializer(typeof(VFPData));
@@ -32,14 +32,14 @@ namespace ASI_POS
             }
             catch (Exception ex)
             {
-                SafeShowStatus($"Deserialize Failed for {fileName}: {ex.Message}");
+                SafeShowStatus($"Deserialize Failed for {fileName}: {ex.Message}", 2);
                 return false;
             }
             if (data?.CusTables == null || data.CusTables.Count < 0)
                 return false;
             if (!settings.updateCustomerFiles)
             {
-                SafeShowStatus("Update Customer Files flag is OFF in Settings!!!");
+                SafeShowStatus("Update Customer Files flag is OFF in Settings!!!", 3);
                 return false;
             }
             foreach (custable CusUpd in data.CusTables)
@@ -60,10 +60,10 @@ namespace ASI_POS
                     {
                         UpsertCustomerFields(existing, CusUpd, cphone, Lnwebcustid);
                         LInsertCus = true;
-                        SafeShowStatus($"Processed Customer ID: {CusUpd.custid}");
+                        SafeShowStatus($"Processed Customer ID: {CusUpd.custid}", 1);
                         bool ok = updateCustomer(existing);
                         if (!ok)
-                            SafeShowStatus($"Failed to update for customer {Lnwebcustid}");
+                            SafeShowStatus($"Failed to update for customer {Lnwebcustid}", 2);
                     }
                 }
                 if (!LInsertCus && !string.IsNullOrWhiteSpace(CusUpd.email))
@@ -74,10 +74,10 @@ namespace ASI_POS
                     {
                         UpsertCustomerFields(existing, CusUpd, cphone, Lnwebcustid);
                         LInsertCus = true;
-                        SafeShowStatus($"Processed Customer ID: {CusUpd.custid}");
+                        SafeShowStatus($"Processed Customer ID: {CusUpd.custid}", 1);
                         bool ok = updateCustomer(existing);
                         if (!ok)
-                            SafeShowStatus($"Failed to update for customer {Lnwebcustid}");
+                            SafeShowStatus($"Failed to update for customer {Lnwebcustid}", 2);
                     }
                 }
                 if (!LInsertCus && !string.IsNullOrWhiteSpace(cphone))
@@ -87,10 +87,10 @@ namespace ASI_POS
                     {
                         UpsertCustomerFields(existing, CusUpd, cphone, Lnwebcustid);
                         LInsertCus = true;
-                        SafeShowStatus($"Processed Customer ID: {CusUpd.custid}");
+                        SafeShowStatus($"Processed Customer ID: {CusUpd.custid}", 1);
                         bool ok = updateCustomer(existing);
                         if (!ok)
-                            SafeShowStatus($"Failed to update for customer {Lnwebcustid}");
+                            SafeShowStatus($"Failed to update for customer {Lnwebcustid}", 2);
                     }
                 }
                 if (!LInsertCus && !string.IsNullOrWhiteSpace(CusUpd.loyaltyno))
@@ -105,10 +105,10 @@ namespace ASI_POS
                     {
                         UpsertCustomerFields(existing, CusUpd, cphone, Lnwebcustid);
                         LInsertCus = true;
-                        SafeShowStatus($"Processed Customer ID: {CusUpd.custid}");
+                        SafeShowStatus($"Processed Customer ID: {CusUpd.custid}", 1);
                         bool ok = updateCustomer(existing);
                         if (!ok)
-                            SafeShowStatus($"Failed to update for customer {Lnwebcustid}");
+                            SafeShowStatus($"Failed to update for customer {Lnwebcustid}", 2);
                     }
                 }
                 if (!LInsertCus)
@@ -143,8 +143,8 @@ namespace ASI_POS
                     }
                     bool inserted = InsertCustomer(newCustomer);
                     if (!inserted)
-                        SafeShowStatus($"Failed to insert new customer for custid: {CusUpd.custid}");
-                    SafeShowStatus($"Processed New Customer ID: {CusUpd.custid}");
+                        SafeShowStatus($"Failed to insert new customer for custid: {CusUpd.custid}", 2);
+                    SafeShowStatus($"Processed New Customer ID: {CusUpd.custid}", 1);
                 }
             }
             return true;
@@ -235,16 +235,16 @@ namespace ASI_POS
             }
             catch (OleDbException ex)
             {
-                SafeShowStatus($"Failed: {ex.Message} ");
+                SafeShowStatus($"Failed: {ex.Message} ", 2);
             }
             catch (Exception ex)
             {
-                SafeShowStatus($"Failed: {ex.Message} ");
+                SafeShowStatus($"Failed: {ex.Message} ", 2);
             }
 
             return customers;
         }
-        private bool InsertCustomer(cus c)
+        public bool InsertCustomer(cus c)
         {
             settings.LoadSettings();
 
@@ -329,12 +329,12 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
             }
             catch (OleDbException ex)
             {
-                SafeShowStatus($"Failed for New WebCustId {c.Webcustid}: {ex.Message}");
+                SafeShowStatus($"Failed for New WebCustId {c.Webcustid}: {ex.Message}", 2);
                 return false;
             }
             catch (Exception ex)
             {
-                SafeShowStatus($"Failed for New WebCustId {c.Webcustid}: {ex.Message}");
+                SafeShowStatus($"Failed for New WebCustId {c.Webcustid}: {ex.Message}", 2);
                 return false;
             }
         }
@@ -406,7 +406,7 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
             }
             catch (OleDbException ex)
             {
-                SafeShowStatus($"Update failed for WebCustId {existing.Webcustid}: {ex.Message}");
+                SafeShowStatus($"Update failed for WebCustId {existing.Webcustid}: {ex.Message}", 2);
                 return false;
             }
         }
@@ -458,7 +458,7 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
                         nNwwcusno++;
                         if (nNwwcusno > Int32.MaxValue - 1)
                         {
-                            SafeShowStatus("Reached numeric limit while searching for new customer id.");
+                            SafeShowStatus("Reached numeric limit while searching for new customer id.", 2);
                             return 0;
                         }
                     }
@@ -470,7 +470,7 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
                     int updated = cmd.ExecuteNonQuery();
                     if (updated <= 0)
                     {
-                        SafeShowStatus("Failed to update cnt DATA after generating new customer number.");
+                        SafeShowStatus("Failed to update cnt DATA after generating new customer number.", 2);
                     }
 
                     conn.Close();
@@ -480,11 +480,11 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
             }
             catch (Exception ex)
             {
-                SafeShowStatus($"GetNextCustomerId failed: {ex.Message}");
+                SafeShowStatus($"GetNextCustomerId failed: {ex.Message}", 2);
                 return 0;
             }
         }
-        private string NormalizePhone(string raw)
+        public string NormalizePhone(string raw)
         {
             if (string.IsNullOrWhiteSpace(raw))
                 return null;
@@ -499,11 +499,11 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
             }
             return raw.Trim();
         }
-        private void SafeShowStatus(string msg)
+        private void SafeShowStatus(string msg, int c=0)
         {
             if (Form1.Instance != null)
             {
-                try { Form1.Instance.ShowStatus(msg); } catch { }
+                try { Form1.Instance.ShowStatus(msg, c); } catch { }
             }
             else
             {

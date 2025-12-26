@@ -77,6 +77,17 @@ namespace ASI_POS
                 txtwebstore.Text = settings.webstore;
                 textMarkUp.Text = settings.MarkUpPrice.ToString();
                 txtservicefee.Text = settings.ServiceFee;
+                txtmobileregister.Text = settings.Mobile_Register;
+                txtmobilecashier.Text = settings.Mobile_Cashier;
+                txtShippingCat.Text = settings.ShippingCat;
+                txtTipCat.Text = settings.TipCat;
+                txtDiscountCat.Text = settings.DiscountCat;
+                txtVisa.Text = settings.visa;
+                txtAmex.Text = settings.amex;
+                txtMc.Text = settings.mastercard;
+                txtDiscover.Text = settings.discover;
+                txtGeneric.Text = settings.generic;
+                chkfrequent.Checked = settings.FrequentFile;
             }
             if (File.Exists("config//cat.txt"))
             {
@@ -104,6 +115,16 @@ namespace ASI_POS
             clsdb.selectpath = textpath.Text;
             clsdb.UpFolder = txtUPFolder.Text;
             clsdb.DownFolder = txtdownloadpath.Text;
+            clsdb.TaxCode = txttaxcode.Text;
+            clsdb.service_fee = txtservicefee.Text;
+            clsdb.shipCat = txtShippingCat.Text;
+            clsdb.tipCat = txtTipCat.Text;
+            clsdb.discountCat = txtDiscountCat.Text;
+            clsdb.visa = txtVisa.Text;
+            clsdb.amex = txtAmex.Text;
+            clsdb.mastercard = txtMc.Text;
+            clsdb.discover = txtDiscover.Text;
+            clsdb.generic = txtGeneric.Text;
             try
             {
                 Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
@@ -138,10 +159,8 @@ namespace ASI_POS
                 clsftp.Server = txtFTPserver.Text;
                 clsftp.FtpUserName = txtFTPuid.Text;
                 clsftp.FtpPassword = txtFTPpwd.Text;
-                clsftp.TaxCode = txttaxcode.Text;
                 clsftp.Asi_StoreId = txtasistoreid.Text;
                 clsftp.mobilestore = txtwebstore.Text;
-                clsftp.service_fee = txtservicefee.Text;
                 Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
                 using (StreamWriter sw = new StreamWriter(@"config\ftpsettings.txt"))
                 using (Newtonsoft.Json.JsonTextWriter writer = new Newtonsoft.Json.JsonTextWriter(sw))
@@ -268,7 +287,9 @@ namespace ASI_POS
             others.Statvalue = txtstat.Text;
             others.updatecustomerfiles = chkupcustomerfiles.Checked;
             others.updatecclubcardnos = chkclubcardno.Checked;
-            
+            others.mobileregister = txtmobileregister.Text;
+            others.mobilecashier = txtmobilecashier.Text;
+            others.enablefrequentFile = chkfrequent.Checked;
             JsonSerializer serializer = new JsonSerializer();
             using (StreamWriter sw = new StreamWriter(@"config\others.txt"))
             using (JsonTextWriter writer = new JsonTextWriter(sw))
@@ -336,6 +357,16 @@ namespace ASI_POS
         private void button2_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void button5_Click(object sender, EventArgs e)// Save cat
+        {
+            btnDbSave_Click(sender, e);
         }
     }
 }

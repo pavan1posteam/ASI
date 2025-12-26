@@ -1,6 +1,7 @@
 ﻿using ASI_POS.Model;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.OleDb;
 using System.IO;
 using System.Linq;
@@ -23,6 +24,10 @@ namespace ASI_POS
             try
             {
                 settings.LoadSettings();
+                //string outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"jnl_not_null_columns.txt");
+                //ExportNonNullableCusColumnsToFile(outputPath);
+                //SafeShowStatus("Exported NOT NULL CUS columns to: " + outputPath);
+
                 string ftpServerIP = settings.FtpServer;
                 string ftpUserID = settings.FtpUserName;
                 string ftpPassword = settings.FtpPassword;
@@ -30,7 +35,7 @@ namespace ASI_POS
 
                 string listUri = string.IsNullOrEmpty(ftpFolder)? $"ftp://{ftpServerIP}/": $"ftp://{ftpServerIP}/{ftpFolder}/";
 
-                SafeShowStatus("Connecting to FTP");
+                SafeShowStatus("Connecting to FTP", 3);
 
                 System.Net.ServicePointManager.DefaultConnectionLimit = Math.Max(System.Net.ServicePointManager.DefaultConnectionLimit, 100);
 
@@ -57,7 +62,7 @@ namespace ASI_POS
 
                 if (allFiles.Count == 0)
                 {
-                    SafeShowStatus("0 Files found");
+                    SafeShowStatus("0 Files found", 2);
                     return result;
                 }
                 var xmlFiles = allFiles
@@ -66,13 +71,13 @@ namespace ASI_POS
                 xmlcount = xmlFiles.Count;
                 if (xmlFiles.Count == 0)
                 {
-                    SafeShowStatus("0 Files Found!");
+                    SafeShowStatus("0 Files Found!", 2);
                     return result;
                 }
                 string downloadFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Upload/Download");
                 Directory.CreateDirectory(downloadFolder);
 
-                SafeShowStatus($"{xmlFiles.Count} Files Found!");
+                SafeShowStatus($"{xmlFiles.Count} Files Found!", 1);
 
                 foreach (var fileName in xmlFiles)
                 {
@@ -126,14 +131,14 @@ namespace ASI_POS
                         catch (WebException wex)
                         {
                             lastEx = wex;
-                            SafeShowStatus($"i {i} failed for {fileName}: {wex.Message}");
+                            SafeShowStatus($"i {i} failed for {fileName}: {wex.Message}", 2);
                             try { if (File.Exists(localTemp)) File.Delete(localTemp); } catch { }
                             System.Threading.Thread.Sleep(500 * i);
                         }
                         catch (Exception ex)
                         {
                             lastEx = ex;
-                            SafeShowStatus($"i {i} error for {fileName}: {ex.Message}");
+                            SafeShowStatus($"i {i} error for {fileName}: {ex.Message}", 2);
                             try { if (File.Exists(localTemp)) File.Delete(localTemp); } catch { }
                             System.Threading.Thread.Sleep(500 * i);
                         }
@@ -160,7 +165,7 @@ namespace ASI_POS
                     if (!success)
                     {
                         result.FailedFiles.Add(fileName);
-                        SafeShowStatus($"Failed to download after {3} is: {fileName}. Last error: {lastEx?.Message}");
+                        SafeShowStatus($"Failed to download after {3} is: {fileName}. Last error: {lastEx?.Message}", 2);
                     }
                 }
 
@@ -168,7 +173,7 @@ namespace ASI_POS
             }
             catch (Exception ex)
             {
-                SafeShowStatus("FTP operation failed: " + ex.Message);
+                SafeShowStatus("FTP operation failed: " + ex.Message, 2);
                 result.FatalError = ex;
                 return result;
             }
@@ -177,11 +182,54 @@ namespace ASI_POS
                 if(xmlcount > 0)
                 {
                     ProcessDownloadedXmlFiles();
-                    SafeShowStatus("All Done");
+                    SafeShowStatus("All Done", 1);
                 }
-                SafeShowStatus("Disconnected from FTP");
+                SafeShowStatus("Disconnected from FTP", 3);
             }
         }
+        #region test region
+        //public void ExportNonNullableCusColumnsToFile(string outputFilePath)
+        //{
+        //    settings.LoadSettings();
+
+        //    if (string.IsNullOrWhiteSpace(settings.ConnectionString))
+        //        throw new InvalidOperationException("ConnectionString not configured.");
+
+        //    using (var conn = new OleDbConnection(settings.ConnectionString))
+        //    using (var cmd = conn.CreateCommand())
+        //    {
+        //        conn.Open();
+
+        //        cmd.CommandText = "SELECT * FROM jnl WHERE 1=0";
+
+        //        using (var reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
+        //        {
+        //            var schema = reader.GetSchemaTable();
+        //            if (schema == null)
+        //                throw new InvalidOperationException("Failed to read schema for cus table.");
+
+        //            using (var sw = new StreamWriter(outputFilePath, false))
+        //            {
+        //                sw.WriteLine("NOT NULL columns in CUS table");
+        //                sw.WriteLine("================================");
+        //                sw.WriteLine("ColumnName | DataType | ColumnSize");
+        //                sw.WriteLine("--------------------------------");
+
+        //                foreach (DataRow row in schema.Rows)
+        //                {
+        //                    string colName = row["ColumnName"].ToString();
+        //                    string dataType = row["DataType"]?.ToString() ?? "Unknown";
+        //                    string colSize = row.Table.Columns.Contains("ColumnSize")
+        //                        ? row["ColumnSize"]?.ToString()
+        //                        : "N/A";
+
+        //                    sw.WriteLine($"{colName} | {dataType} | {colSize}");
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+        #endregion
         public XmlProcessResult ProcessDownloadedXmlFiles()
         {
             var result = new XmlProcessResult();
@@ -204,7 +252,7 @@ namespace ASI_POS
 
             //        Customers customers = new Customers();
             //        flag = customers.customerupdate(f.Name, xmlContent);
-            //        SafeShowStatus("Customer Update Completed");
+            //        SafeShowStatus("Customer Update Completed", 1);
             //        if (flag)
             //        {
             //            MoveToArchive(f.Name);
@@ -214,7 +262,7 @@ namespace ASI_POS
             //    catch (Exception ex)
             //    {
             //        flag = false;
-            //        SafeShowStatus($"Processing failed {f.Name}: {ex.Message}");
+            //        SafeShowStatus($"Processing failed {f.Name}: {ex.Message}", 2);
             //    }
             //}
             var ordFiles = files.Where(f => f.Prefix == "ORD").ToList();
@@ -225,15 +273,14 @@ namespace ASI_POS
             {
                 if (!pmtLookup.TryGetValue(key, out var pmt))
                 {
-                    SafeShowStatus($"PMT File Missing for ORD file: {ordLookup[key].Name}");
+                    SafeShowStatus($"PMT File Missing for ORD file: {ordLookup[key].Name}", 2);
                     continue;
                 }
                 string ordXml = File.ReadAllText(ordLookup[key].FullPath);
                 string pmtXml = File.ReadAllText(pmt.FullPath);
                 Match regexMatch = Regex.Match(pmtXml, @"<orderid>(?<Result>\d+)</orderid>");
                 string orderid = regexMatch.Groups["Result"]?.Value;
-                SafeShowStatus($"Processing Order Id: #{orderid}");
-                SafeShowStatus($"Processing Order Id: #{orderid}");
+                SafeShowStatus($"Processing Order Id: #{orderid}", 3);
 
                 updateOrders orders = new updateOrders();
                 flag = orders.updateorder(ordLookup[key].Name, ordXml, pmt.Name, pmtXml);
@@ -262,11 +309,11 @@ namespace ASI_POS
             }
 
         }
-        private void SafeShowStatus(string msg)
+        private void SafeShowStatus(string msg, int c =0)
         {
             if (Form1.Instance != null)
             {
-                try { Form1.Instance.ShowStatus(msg); } catch { }
+                try { Form1.Instance.ShowStatus(msg, c); } catch { }
             }
             else
             {
@@ -302,12 +349,12 @@ namespace ASI_POS
                     conn.Open();
                     cmd.CommandText = $"ALTER TABLE cus ADD COLUMN {columnname} I(4)";
                     cmd.ExecuteNonQuery();
-                    SafeShowStatus($"Added Column Name {columnname} In CUS Table.");
+                    SafeShowStatus($"Added Column Name {columnname} In CUS Table.", 1);
                 }
             }
             else
             {
-                SafeShowStatus($"Column: {columnname} Is Already Exists.");
+                SafeShowStatus($"Column: {columnname} Is Already Exists.", 3);
             }
             try
             {
@@ -327,7 +374,7 @@ namespace ASI_POS
                     int exists = Convert.ToInt32(cmd.ExecuteScalar());
 
                     if (exists > 0)
-                        SafeShowStatus("BC SERVICE FEE Already Exists In CAT Table.");
+                        SafeShowStatus("BC SERVICE FEE Already Exists In CAT Table.", 3);
                     else
                         catflag = true;
                 }
@@ -379,7 +426,7 @@ namespace ASI_POS
                                 cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Boolean, Value = true });//Gosent
                                 cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Integer, Value = 0 });//Cost_plus
                                 cmd.ExecuteNonQuery();
-                                SafeShowStatus($"Added BC SERVICE FEE in CAT Table.");
+                                SafeShowStatus($"Added BC SERVICE FEE in CAT Table.", 3);
                             }
                             using (var cmd = conn.CreateCommand())
                             {
@@ -399,18 +446,18 @@ namespace ASI_POS
                                 cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Boolean, Value = false });//Skipstat
                                 cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Boolean, Value = false });//Sent
                                 cmd.ExecuteNonQuery();
-                                SafeShowStatus($"Added BC SERVICE FEE in GLA Table.");
+                                SafeShowStatus($"Added BC SERVICE FEE in GLA Table.", 3);
                             }
                         }
                     }
                 }
-                SafeShowStatus("Installation Done!!!");
-                SafeShowStatus("Change The Required Fields In Settings Tab Before Running!");
+                SafeShowStatus("Installation Done!!!", 1);
+                SafeShowStatus("Change The Required Fields In Settings Tab Before Running!", 3);
             }
             catch (Exception ex)
             {
-                SafeShowStatus($"Error: {ex.Message}");
-                SafeShowStatus("Installation Failed!");
+                SafeShowStatus($"Error: {ex.Message}", 2);
+                SafeShowStatus("Installation Failed!", 2);
             }
         }
 

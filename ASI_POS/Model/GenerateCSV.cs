@@ -11,7 +11,7 @@ namespace ASI_POS.Model
     class GenerateCSV
     {
         clsSettings setting = new clsSettings();
-        public string GenerateCSVFile(DataTable dt)
+        public string GenerateCSVFile(DataTable dt, bool flag = false)
         {
             StringBuilder sb = new StringBuilder();
             try
@@ -56,7 +56,15 @@ namespace ASI_POS.Model
                     sb.AppendLine();
                 }
                 #endregion
-                if (dt.Columns.Count > 13)
+                if (flag)
+                {
+                    string filename = "FrequentSP" + setting.StoreId + DateTime.Now.ToString("yyyyMMddhhmmss") + ".csv";
+
+                    File.WriteAllText("Upload\\" + filename, sb.ToString());
+
+                    return filename;
+                }
+                else if (dt.Columns.Count > 13)
                 {
                     string filename = "Product" + setting.StoreId + DateTime.Now.ToString("yyyyMMddhhmmss") + ".csv";
 

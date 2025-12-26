@@ -1,0 +1,34 @@
+NOT NULL columns in CUS table
+================================
+ColumnName | DataType | ColumnSize
+--------------------------------
+order | System.Int32 | 4
+store | System.Int32 | 4
+line | System.Int32 | 4
+sku | System.Int32 | 4
+status | System.String | 1
+customer | System.Int32 | 4
+orddate | System.DateTime | 6
+agedate | System.DateTime | 6
+qty | System.Int32 | 4
+pack | System.Int32 | 4
+descript | System.String | 66
+price | System.Decimal | 8
+cost | System.Decimal | 8
+discount | System.Decimal | 8
+promo | System.String | 6
+dflag | System.Decimal | 19
+dclass | System.String | 3
+damount | System.Decimal | 8
+taxlevel | System.Decimal | 19
+surcharge | System.Boolean | 2
+cat | System.String | 3
+location | System.String | 1
+dml | System.Int32 | 4
+cpack | System.Int32 | 4
+onsale | System.Boolean | 2
+freeze | System.Boolean | 2
+memo | System.String | 2147483647
+bqty | System.Int32 | 4
+extax | System.Decimal | 8
+prclevel | System.String | 1

@@ -28,6 +28,33 @@ namespace ASI_POS.Model
         public string Lstore { get; set; }
         public string Status { get; set; }
         public DateTime? Startdate { get; set; }
-        public bool? Fson { get; set; }           
+        public bool? Fson { get; set; }          
+    }
+    public class inv
+    {
+        public string SKU { get; set; }
+        public string NAME { get; set; }
+        public string cat { get; set; }
+        public int pack { get; set; }
+        public decimal ACOST { get; set; }
+        public decimal LCOST { get; set; }
+        public string Onsale { get; set; }
+        public bool fson { get; set; }
+        public int fsfactor { get; set; }
+    }
+    public class stk
+    {
+        public string SKU { get; set; }
+        public int Store { get; set; }
+        public decimal ACOST { get; set; }
+        public decimal LCOST { get; set; }
+    }
+    public class txc
+    {
+        public string Code { get; set; }
+        public int Level { get; set; }
+        public string Descript { get; set; }
+        public string Cat { get; set; }
+        public decimal Rate { get; set; }
     }
 }

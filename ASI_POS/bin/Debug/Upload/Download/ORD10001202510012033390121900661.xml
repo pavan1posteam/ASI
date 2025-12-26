@@ -1,0 +1,106 @@
+<?xml version = '1.0' encoding='Windows-1252' standalone='yes'?><VFPData><xsd:schema id="VFPData" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+	<xsd:element name="VFPData" msdata:IsDataSet="true">
+		<xsd:complexType>
+			<xsd:choice maxOccurs="unbounded">
+				<xsd:element name="ordtable" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="orderid">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="20"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="custid">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="sku">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="orddate" type="xsd:dateTime"/>
+							<xsd:element name="qty">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:decimal">
+										<xsd:totalDigits value="4"/>
+										<xsd:fractionDigits value="0"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="descript">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="70"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="price">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:decimal">
+										<xsd:totalDigits value="17"/>
+										<xsd:fractionDigits value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="offerprice">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:decimal">
+										<xsd:totalDigits value="17"/>
+										<xsd:fractionDigits value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="loyaltyno">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="100"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="emailid">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="100"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="phoneno">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="100"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="pack">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:decimal">
+										<xsd:totalDigits value="4"/>
+										<xsd:fractionDigits value="0"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="deposit">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:decimal">
+										<xsd:totalDigits value="17"/>
+										<xsd:fractionDigits value="2"/>
+									</xsd:restriction>
+							</xsd:simpleType>
+						</xsd:element>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:choice>
+			<xsd:anyAttribute namespace="http://www.w3.org/XML/1998/namespace" processContents="lax"/>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>
+<ordtable><orderid>1900661</orderid><custid>10008269</custid><sku>70132</sku><orddate>2025-10-01T08:36:27.627</orddate><qty>1</qty><descript>CASTELL DE SANT PAU BRUT NATURE CAVA GUILD</descript><price>16.99</price><offerprice>10.99</offerprice><loyaltyno></loyaltyno><emailid>ajacobb@hotmail.com</emailid><phoneno>720-2753433</phoneno><pack>1</pack><deposit>0.00</deposit></ordtable><ordtable><orderid>1900661</orderid><custid>10008269</custid><sku>70914</sku><orddate>2025-10-01T08:36:27.627</orddate><qty>1</qty><descript>CAVE LIBERAL BRUT (GUILD) FRA</descript><price>16.99</price><offerprice>11.99</offerprice><loyaltyno></loyaltyno><emailid>ajacobb@hotmail.com</emailid><phoneno>720-2753433</phoneno><pack>1</pack><deposit>0.00</deposit></ordtable><ordtable><orderid>1900661</orderid><custid>10008269</custid><sku>16976</sku><orddate>2025-10-01T08:36:27.627</orddate><qty>1</qty><descript>BOTA BOX PINOT GRIGIO</descript><price>21.99</price><offerprice>0.00</offerprice><loyaltyno></loyaltyno><emailid>ajacobb@hotmail.com</emailid><phoneno>720-2753433</phoneno><pack>1</pack><deposit>0.00</deposit></ordtable><ordtable><orderid>1900661</orderid><custid>10008269</custid><sku>94831</sku><orddate>2025-10-01T08:36:27.627</orddate><qty>1</qty><descript>MR. PURE ORANGE JUICE 160Z</descript><price>2.49</price><offerprice>0.00</offerprice><loyaltyno></loyaltyno><emailid>ajacobb@hotmail.com</emailid><phoneno>720-2753433</phoneno><pack>1</pack><deposit>0.00</deposit></ordtable><ordtable><orderid>1900661</orderid><custid>10008269</custid><sku>94035</sku><orddate>2025-10-01T08:36:27.627</orddate><qty>1</qty><descript>MINUTE MD ORANGE JUICE</descript><price>1.99</price><offerprice>0.00</offerprice><loyaltyno></loyaltyno><emailid>ajacobb@hotmail.com</emailid><phoneno>720-2753433</phoneno><pack>1</pack><deposit>0.00</deposit></ordtable><ordtable><orderid>1900661</orderid><custid>10008269</custid><sku>41614</sku><orddate>2025-10-01T08:36:27.627</orddate><qty>1</qty><descript>BUD LIGHT &amp; CLAMATO EXTRA LIME CHELADA 25OZ CANS</descript><price>3.29</price><offerprice>0.00</offerprice><loyaltyno></loyaltyno><emailid>ajacobb@hotmail.com</emailid><phoneno>720-2753433</phoneno><pack>1</pack><deposit>0.00</deposit></ordtable><ordtable><orderid>1900661</orderid><custid>10008269</custid><sku>66952</sku><orddate>2025-10-01T08:36:27.627</orddate><qty>1</qty><descript>MODELO ESPECIAL CHELADA 24OZ CANS</descript><price>3.49</price><offerprice>0.00</offerprice><loyaltyno></loyaltyno><emailid>ajacobb@hotmail.com</emailid><phoneno>720-2753433</phoneno><pack>1</pack><deposit>0.00</deposit></ordtable><ordtable><orderid>1900661</orderid><custid>10008269</custid><sku>67420</sku><orddate>2025-10-01T08:36:27.627</orddate><qty>1</qty><descript>SOL CHELADA 24OZ CAN</descript><price>3.49</price><offerprice>0.00</offerprice><loyaltyno></loyaltyno><emailid>ajacobb@hotmail.com</emailid><phoneno>720-2753433</phoneno><pack>1</pack><deposit>0.00</deposit></ordtable><ordtable><orderid>1900661</orderid><custid>10008269</custid><sku>93538</sku><orddate>2025-10-01T08:36:27.627</orddate><qty>1</qty><descript>BUD LIGHT &amp; CLAMATO TAJIN CHELADA 25OZ CANS</descript><price>3.29</price><offerprice>0.00</offerprice><loyaltyno></loyaltyno><emailid>ajacobb@hotmail.com</emailid><phoneno>720-2753433</phoneno><pack>1</pack><deposit>0.00</deposit></ordtable><ordtable><orderid>1900661</orderid><custid>10008269</custid><sku>82913</sku><orddate>2025-10-01T08:36:27.627</orddate><qty>1</qty><descript>CO Retail Delivery Fee</descript><price>0.28</price><offerprice>0.00</offerprice><loyaltyno></loyaltyno><emailid>ajacobb@hotmail.com</emailid><phoneno>720-2753433</phoneno><pack>1</pack><deposit>0.00</deposit></ordtable> </VFPData>
