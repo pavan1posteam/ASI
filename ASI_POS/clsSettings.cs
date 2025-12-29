@@ -50,6 +50,10 @@ namespace ASI_POS
         public string discover { get; set; }
         public string generic { get; set; }
         public bool FrequentFile { get; set; }
+        public int UploadTime { get; set; }
+        public int DownloadTime { get; set; }
+        public bool UploadFilesToFTP { get; set; }
+        public bool DownloadFilesToFTP { get; set; }
         public void LoadSettings()
         {
             string json;
@@ -121,6 +125,10 @@ namespace ASI_POS
                     Mobile_Register = others.mobileregister;
                     Mobile_Cashier = others.mobilecashier;
                     FrequentFile = others.enablefrequentFile;
+                    UploadTime = others.uploadminute;
+                    DownloadTime = others.downloadminute;
+                    UploadFilesToFTP = others.uploadfilestoftp;
+                    DownloadFilesToFTP = others.downloadfilestoftp;
                 }
             }
         }

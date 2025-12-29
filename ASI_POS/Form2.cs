@@ -19,6 +19,8 @@ namespace ASI_POS
     {
         DataTable dtCat;
         clsSettings settings = new clsSettings();
+        public event Action SettingsUpdated;
+
         public Form2()
         {
             InitializeComponent();
@@ -88,6 +90,10 @@ namespace ASI_POS
                 txtDiscover.Text = settings.discover;
                 txtGeneric.Text = settings.generic;
                 chkfrequent.Checked = settings.FrequentFile;
+                numericUpload.Value = settings.UploadTime;
+                numericDownload.Value = settings.DownloadTime;
+                chkuploadfilesftp.Checked = settings.UploadFilesToFTP;
+                chkdownloadfilesftp.Checked = settings.DownloadFilesToFTP;
             }
             if (File.Exists("config//cat.txt"))
             {
@@ -290,6 +296,10 @@ namespace ASI_POS
             others.mobileregister = txtmobileregister.Text;
             others.mobilecashier = txtmobilecashier.Text;
             others.enablefrequentFile = chkfrequent.Checked;
+            others.uploadminute = (int)numericUpload.Value;
+            others.downloadminute = (int)numericDownload.Value;
+            others.uploadfilestoftp = chkuploadfilesftp.Checked;
+            others.downloadfilestoftp = chkdownloadfilesftp.Checked;
             JsonSerializer serializer = new JsonSerializer();
             using (StreamWriter sw = new StreamWriter(@"config\others.txt"))
             using (JsonTextWriter writer = new JsonTextWriter(sw))
@@ -299,6 +309,8 @@ namespace ASI_POS
                 writer.Close();
             }
             MessageBox.Show("Saved Successfully !!", "Others", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            SettingsUpdated?.Invoke();
+
         }
         CheckBox HeaderCheckBox = null;
         bool IsHeaderCheckBoxClicked = false;

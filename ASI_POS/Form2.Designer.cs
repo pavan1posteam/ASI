@@ -93,6 +93,7 @@ namespace ASI_POS
             this.btnExit = new System.Windows.Forms.Button();
             this.btnOtherSave = new System.Windows.Forms.Button();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.chkfrequent = new System.Windows.Forms.CheckBox();
             this.txtmobilecashier = new System.Windows.Forms.TextBox();
             this.label18 = new System.Windows.Forms.Label();
             this.txtmobileregister = new System.Windows.Forms.TextBox();
@@ -114,7 +115,12 @@ namespace ASI_POS
             this.textMarkUp = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.chkfrequent = new System.Windows.Forms.CheckBox();
+            this.label27 = new System.Windows.Forms.Label();
+            this.label28 = new System.Windows.Forms.Label();
+            this.numericUpload = new System.Windows.Forms.NumericUpDown();
+            this.numericDownload = new System.Windows.Forms.NumericUpDown();
+            this.chkuploadfilesftp = new System.Windows.Forms.CheckBox();
+            this.chkdownloadfilesftp = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -125,6 +131,8 @@ namespace ASI_POS
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.tabPage4.SuspendLayout();
             this.panel3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpload)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericDownload)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -782,7 +790,6 @@ namespace ASI_POS
             // btnOtherSave
             // 
             this.btnOtherSave.BackColor = System.Drawing.Color.Transparent;
-            this.btnOtherSave.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.btnOtherSave.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnOtherSave.Image = ((System.Drawing.Image)(resources.GetObject("btnOtherSave.Image")));
             this.btnOtherSave.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -799,6 +806,12 @@ namespace ASI_POS
             // panel3
             // 
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel3.Controls.Add(this.chkdownloadfilesftp);
+            this.panel3.Controls.Add(this.chkuploadfilesftp);
+            this.panel3.Controls.Add(this.numericDownload);
+            this.panel3.Controls.Add(this.numericUpload);
+            this.panel3.Controls.Add(this.label28);
+            this.panel3.Controls.Add(this.label27);
             this.panel3.Controls.Add(this.chkfrequent);
             this.panel3.Controls.Add(this.txtmobilecashier);
             this.panel3.Controls.Add(this.label18);
@@ -827,17 +840,28 @@ namespace ASI_POS
             this.panel3.Size = new System.Drawing.Size(542, 372);
             this.panel3.TabIndex = 12;
             // 
+            // chkfrequent
+            // 
+            this.chkfrequent.AutoSize = true;
+            this.chkfrequent.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkfrequent.Location = new System.Drawing.Point(354, 68);
+            this.chkfrequent.Name = "chkfrequent";
+            this.chkfrequent.Size = new System.Drawing.Size(161, 28);
+            this.chkfrequent.TabIndex = 46;
+            this.chkfrequent.Text = "FrequentSP File";
+            this.chkfrequent.UseVisualStyleBackColor = true;
+            // 
             // txtmobilecashier
             // 
-            this.txtmobilecashier.Location = new System.Drawing.Point(182, 40);
+            this.txtmobilecashier.Location = new System.Drawing.Point(162, 77);
             this.txtmobilecashier.Name = "txtmobilecashier";
-            this.txtmobilecashier.Size = new System.Drawing.Size(100, 32);
+            this.txtmobilecashier.Size = new System.Drawing.Size(120, 32);
             this.txtmobilecashier.TabIndex = 45;
             // 
             // label18
             // 
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(30, 40);
+            this.label18.Location = new System.Drawing.Point(15, 80);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(141, 24);
             this.label18.TabIndex = 44;
@@ -845,15 +869,15 @@ namespace ASI_POS
             // 
             // txtmobileregister
             // 
-            this.txtmobileregister.Location = new System.Drawing.Point(182, 1);
+            this.txtmobileregister.Location = new System.Drawing.Point(162, 115);
             this.txtmobileregister.Name = "txtmobileregister";
-            this.txtmobileregister.Size = new System.Drawing.Size(100, 32);
+            this.txtmobileregister.Size = new System.Drawing.Size(120, 32);
             this.txtmobileregister.TabIndex = 43;
             // 
             // label17
             // 
             this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(25, 4);
+            this.label17.Location = new System.Drawing.Point(10, 118);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(146, 24);
             this.label17.TabIndex = 42;
@@ -864,7 +888,7 @@ namespace ASI_POS
             this.chkclubcardno.AutoSize = true;
             this.chkclubcardno.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.chkclubcardno.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
-            this.chkclubcardno.Location = new System.Drawing.Point(303, 247);
+            this.chkclubcardno.Location = new System.Drawing.Point(305, 339);
             this.chkclubcardno.Name = "chkclubcardno";
             this.chkclubcardno.Size = new System.Drawing.Size(210, 28);
             this.chkclubcardno.TabIndex = 41;
@@ -875,7 +899,7 @@ namespace ASI_POS
             // 
             this.chkupcustomerfiles.AutoSize = true;
             this.chkupcustomerfiles.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.chkupcustomerfiles.Location = new System.Drawing.Point(291, 213);
+            this.chkupcustomerfiles.Location = new System.Drawing.Point(293, 102);
             this.chkupcustomerfiles.Name = "chkupcustomerfiles";
             this.chkupcustomerfiles.Size = new System.Drawing.Size(222, 28);
             this.chkupcustomerfiles.TabIndex = 38;
@@ -884,15 +908,15 @@ namespace ASI_POS
             // 
             // txtstat
             // 
-            this.txtstat.Location = new System.Drawing.Point(182, 191);
+            this.txtstat.Location = new System.Drawing.Point(162, 277);
             this.txtstat.Name = "txtstat";
-            this.txtstat.Size = new System.Drawing.Size(100, 32);
+            this.txtstat.Size = new System.Drawing.Size(120, 32);
             this.txtstat.TabIndex = 37;
             // 
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(116, 199);
+            this.label14.Location = new System.Drawing.Point(103, 280);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(51, 24);
             this.label14.TabIndex = 36;
@@ -902,7 +926,7 @@ namespace ASI_POS
             // 
             this.chkallqtyperpack.AutoSize = true;
             this.chkallqtyperpack.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.chkallqtyperpack.Location = new System.Drawing.Point(380, 111);
+            this.chkallqtyperpack.Location = new System.Drawing.Point(382, 170);
             this.chkallqtyperpack.Name = "chkallqtyperpack";
             this.chkallqtyperpack.Size = new System.Drawing.Size(133, 28);
             this.chkallqtyperpack.TabIndex = 35;
@@ -913,7 +937,7 @@ namespace ASI_POS
             // 
             this.chkfloor.AutoSize = true;
             this.chkfloor.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.chkfloor.Location = new System.Drawing.Point(372, 179);
+            this.chkfloor.Location = new System.Drawing.Point(374, 305);
             this.chkfloor.Name = "chkfloor";
             this.chkfloor.Size = new System.Drawing.Size(141, 28);
             this.chkfloor.TabIndex = 34;
@@ -924,7 +948,7 @@ namespace ASI_POS
             // 
             this.chkdiscountable.AutoSize = true;
             this.chkdiscountable.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.chkdiscountable.Location = new System.Drawing.Point(333, 145);
+            this.chkdiscountable.Location = new System.Drawing.Point(335, 271);
             this.chkdiscountable.Name = "chkdiscountable";
             this.chkdiscountable.Size = new System.Drawing.Size(180, 28);
             this.chkdiscountable.TabIndex = 33;
@@ -933,15 +957,15 @@ namespace ASI_POS
             // 
             // txtInetValue
             // 
-            this.txtInetValue.Location = new System.Drawing.Point(182, 153);
+            this.txtInetValue.Location = new System.Drawing.Point(162, 234);
             this.txtInetValue.Name = "txtInetValue";
-            this.txtInetValue.Size = new System.Drawing.Size(100, 32);
+            this.txtInetValue.Size = new System.Drawing.Size(120, 32);
             this.txtInetValue.TabIndex = 32;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(58, 155);
+            this.label3.Location = new System.Drawing.Point(47, 234);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(109, 24);
             this.label3.TabIndex = 31;
@@ -949,15 +973,15 @@ namespace ASI_POS
             // 
             // txtPrcLvl
             // 
-            this.txtPrcLvl.Location = new System.Drawing.Point(182, 113);
+            this.txtPrcLvl.Location = new System.Drawing.Point(162, 193);
             this.txtPrcLvl.Name = "txtPrcLvl";
-            this.txtPrcLvl.Size = new System.Drawing.Size(100, 32);
+            this.txtPrcLvl.Size = new System.Drawing.Size(120, 32);
             this.txtPrcLvl.TabIndex = 30;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(58, 116);
+            this.label4.Location = new System.Drawing.Point(44, 196);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(110, 24);
             this.label4.TabIndex = 29;
@@ -967,7 +991,7 @@ namespace ASI_POS
             // 
             this.chkqtypack.AutoSize = true;
             this.chkqtypack.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.chkqtypack.Location = new System.Drawing.Point(364, 77);
+            this.chkqtypack.Location = new System.Drawing.Point(366, 136);
             this.chkqtypack.Name = "chkqtypack";
             this.chkqtypack.Size = new System.Drawing.Size(149, 28);
             this.chkqtypack.TabIndex = 28;
@@ -978,7 +1002,7 @@ namespace ASI_POS
             // 
             this.chkNoUpc.AutoSize = true;
             this.chkNoUpc.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.chkNoUpc.Location = new System.Drawing.Point(306, 40);
+            this.chkNoUpc.Location = new System.Drawing.Point(308, 204);
             this.chkNoUpc.Name = "chkNoUpc";
             this.chkNoUpc.Size = new System.Drawing.Size(207, 28);
             this.chkNoUpc.TabIndex = 27;
@@ -989,7 +1013,7 @@ namespace ASI_POS
             // 
             this.chkStoked.AutoSize = true;
             this.chkStoked.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.chkStoked.Location = new System.Drawing.Point(323, 5);
+            this.chkStoked.Location = new System.Drawing.Point(325, 236);
             this.chkStoked.Margin = new System.Windows.Forms.Padding(4);
             this.chkStoked.Name = "chkStoked";
             this.chkStoked.Size = new System.Drawing.Size(190, 28);
@@ -999,16 +1023,16 @@ namespace ASI_POS
             // 
             // textMarkUp
             // 
-            this.textMarkUp.Location = new System.Drawing.Point(182, 74);
+            this.textMarkUp.Location = new System.Drawing.Point(162, 154);
             this.textMarkUp.Margin = new System.Windows.Forms.Padding(4);
             this.textMarkUp.Name = "textMarkUp";
-            this.textMarkUp.Size = new System.Drawing.Size(100, 32);
+            this.textMarkUp.Size = new System.Drawing.Size(120, 32);
             this.textMarkUp.TabIndex = 16;
             // 
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(22, 77);
+            this.label12.Location = new System.Drawing.Point(8, 157);
             this.label12.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(146, 24);
@@ -1024,16 +1048,59 @@ namespace ASI_POS
             this.label2.Size = new System.Drawing.Size(0, 24);
             this.label2.TabIndex = 14;
             // 
-            // chkfrequent
+            // label27
             // 
-            this.chkfrequent.AutoSize = true;
-            this.chkfrequent.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.chkfrequent.Location = new System.Drawing.Point(352, 281);
-            this.chkfrequent.Name = "chkfrequent";
-            this.chkfrequent.Size = new System.Drawing.Size(161, 28);
-            this.chkfrequent.TabIndex = 46;
-            this.chkfrequent.Text = "FrequentSP File";
-            this.chkfrequent.UseVisualStyleBackColor = true;
+            this.label27.AutoSize = true;
+            this.label27.Location = new System.Drawing.Point(46, 4);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(110, 24);
+            this.label27.TabIndex = 47;
+            this.label27.Text = "Upload (M):";
+            // 
+            // label28
+            // 
+            this.label28.AutoSize = true;
+            this.label28.Location = new System.Drawing.Point(22, 38);
+            this.label28.Name = "label28";
+            this.label28.Size = new System.Drawing.Size(134, 24);
+            this.label28.TabIndex = 48;
+            this.label28.Text = "Download (M):";
+            // 
+            // numericUpload
+            // 
+            this.numericUpload.Location = new System.Drawing.Point(162, 2);
+            this.numericUpload.Name = "numericUpload";
+            this.numericUpload.Size = new System.Drawing.Size(120, 32);
+            this.numericUpload.TabIndex = 49;
+            // 
+            // numericDownload
+            // 
+            this.numericDownload.Location = new System.Drawing.Point(162, 36);
+            this.numericDownload.Name = "numericDownload";
+            this.numericDownload.Size = new System.Drawing.Size(120, 32);
+            this.numericDownload.TabIndex = 50;
+            // 
+            // chkuploadfilesftp
+            // 
+            this.chkuploadfilesftp.AutoSize = true;
+            this.chkuploadfilesftp.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkuploadfilesftp.Location = new System.Drawing.Point(380, 4);
+            this.chkuploadfilesftp.Name = "chkuploadfilesftp";
+            this.chkuploadfilesftp.Size = new System.Drawing.Size(135, 28);
+            this.chkuploadfilesftp.TabIndex = 51;
+            this.chkuploadfilesftp.Text = "Upload Files";
+            this.chkuploadfilesftp.UseVisualStyleBackColor = true;
+            // 
+            // chkdownloadfilesftp
+            // 
+            this.chkdownloadfilesftp.AutoSize = true;
+            this.chkdownloadfilesftp.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkdownloadfilesftp.Location = new System.Drawing.Point(356, 34);
+            this.chkdownloadfilesftp.Name = "chkdownloadfilesftp";
+            this.chkdownloadfilesftp.Size = new System.Drawing.Size(159, 28);
+            this.chkdownloadfilesftp.TabIndex = 52;
+            this.chkdownloadfilesftp.Text = "Download Files";
+            this.chkdownloadfilesftp.UseVisualStyleBackColor = true;
             // 
             // Form2
             // 
@@ -1060,6 +1127,8 @@ namespace ASI_POS
             this.tabPage4.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpload)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericDownload)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -1151,5 +1220,11 @@ namespace ASI_POS
         private System.Windows.Forms.Label label23;
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.CheckBox chkfrequent;
+        private System.Windows.Forms.Label label28;
+        private System.Windows.Forms.Label label27;
+        private System.Windows.Forms.NumericUpDown numericDownload;
+        private System.Windows.Forms.NumericUpDown numericUpload;
+        private System.Windows.Forms.CheckBox chkdownloadfilesftp;
+        private System.Windows.Forms.CheckBox chkuploadfilesftp;
     }
 }

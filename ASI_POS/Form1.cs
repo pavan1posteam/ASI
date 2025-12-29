@@ -31,6 +31,14 @@ namespace ASI_POS
         string pathProduct1 = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Upload");
         private static readonly System.Collections.Concurrent.ConcurrentQueue<string> _pendingStatus = new System.Collections.Concurrent.ConcurrentQueue<string>();
         private bool _isLoaded = false;
+        private int uploadIntervalSeconds;
+        private int downloadIntervalSeconds;
+
+        private int remainingUploadSeconds;
+        private int remainingDownloadSeconds;
+        private bool downloadRunning = false;
+
+
         public Form1(string[] args)
         {
             InitializeComponent();
@@ -49,6 +57,21 @@ namespace ASI_POS
         {
             _isLoaded = true;
             InitStatusGrid();
+            timer1.Interval = 1000;
+            timer1.Start();
+            settings.LoadSettings();
+
+            uploadIntervalSeconds = settings.UploadTime * 60;
+            downloadIntervalSeconds = settings.DownloadTime * 60;
+
+            remainingUploadSeconds = uploadIntervalSeconds;
+            remainingDownloadSeconds = downloadIntervalSeconds;
+
+            timer1.Interval = 1000;
+            timer1.Start();
+
+            UpdateUploadText();
+            UpdateDownloadText();
             while (_pendingStatus.TryDequeue(out var msg))
             {
                 try { ShowStatus(msg); } catch {  }
@@ -91,17 +114,30 @@ namespace ASI_POS
             if (Argsprams != "")
             {
                 Uploading();
-                Environment.Exit(0);
+                //Environment.Exit(0);
             }
+            
         }
 
         private void btnSettings_Click(object sender, EventArgs e)
         {
             Form2 frmSettings = new Form2();
+            frmSettings.SettingsUpdated += ReloadIntervals;
             frmSettings.ShowDialog();
             Cursor.Current = Cursors.WaitCursor;
             Cursor.Current = Cursors.Default;
         }
+        private void ReloadIntervals()
+        {
+            settings.LoadSettings();
+
+            uploadIntervalSeconds = settings.UploadTime * 60;
+            downloadIntervalSeconds = settings.DownloadTime * 60;
+
+            remainingUploadSeconds = uploadIntervalSeconds;
+            remainingDownloadSeconds = downloadIntervalSeconds;
+        }
+
         public void ShowStatus(string str, int c = 0)
         {
             if (string.IsNullOrEmpty(str)) return;
@@ -121,9 +157,9 @@ namespace ASI_POS
             try
             {
                 Color color = Color.Black;
-                if (c == 1) color = Color.DarkGreen;
-                else if (c == 2) color = Color.Red;
-                else if (c == 3) color = Color.Blue;
+                if (c == 1) color = Color.Black;//DarkGreen
+                else if (c == 2) color = Color.DarkRed;
+                else if (c == 3) color = Color.Black;//Blue
 
                 int rowIndex = dataGridView1.Rows.Add(str);
                 dataGridView1.Rows[rowIndex].DefaultCellStyle.ForeColor = color;
@@ -137,66 +173,24 @@ namespace ASI_POS
                 _pendingStatus.Enqueue(str);
             }
         }
-        //public void ShowStatus(string str, int c = 0)
-        //{
-        //    if (string.IsNullOrEmpty(str)) return;
-
-        //    if (dataGridView1 == null || dataGridView1.IsDisposed || !_isLoaded)
-        //    {
-        //        _pendingStatus.Enqueue(str);
-        //        return;
-        //    }
-
-        //    if (this.InvokeRequired)
-        //    {
-        //        try
-        //        {
-        //            this.BeginInvoke(new Action<string, int>(ShowStatus), str);
-        //        }
-        //        catch
-        //        {
-        //            _pendingStatus.Enqueue(str);
-        //        }
-        //        return;
-        //    }
-        //    try
-        //    {
-        //        Color colorname = Color.Black;
-        //        if (c == 1)
-        //            colorname = Color.Green;
-        //        else if (c == 2)
-        //            colorname = Color.Red;
-        //        dataGridView1.ColumnCount = 1;
-        //        dataGridView1.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-        //        dataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-        //        dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-        //        dataGridView1.RowHeadersVisible = false;
-        //        dataGridView1.AllowUserToResizeRows = false;
-        //        dataGridView1.ReadOnly = true;
-        //        dataGridView1.DefaultCellStyle.Font = new Font("Segoe UI", 12F, FontStyle.Regular);
-        //        dataGridView1.DefaultCellStyle.ForeColor = colorname;
-        //        dataGridView1.Rows.Add(str);
-        //        dataGridView1.CellBorderStyle = DataGridViewCellBorderStyle.None;
-        //        dataGridView1.GridColor = dataGridView1.BackgroundColor;
-        //        dataGridView1.AllowUserToAddRows = false;
-        //        dataGridView1.AllowUserToDeleteRows = false;
-        //        dataGridView1.AllowUserToResizeColumns = false;
-        //        dataGridView1.AllowUserToResizeRows = false;
-        //        dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        //        dataGridView1.MultiSelect = false;
-        //        dataGridView1.ScrollBars = ScrollBars.Vertical;
-
-        //        dataGridView1.Refresh();
-
-        //    }
-        //    catch
-        //    {
-        //        _pendingStatus.Enqueue(str);
-        //    }
-        //}
-        private void btnUpload_Click(object sender, EventArgs e)
+        private async void btnUpload_Click(object sender, EventArgs e)
         {
-            Uploading();
+            btnUpload.Enabled = false;
+            try
+            {
+                await RunUploadAsync();
+            }
+            finally
+            {
+                btnUpload.Enabled = true;
+            }
+        }
+        private Task RunUploadAsync()
+        {
+            return Task.Run(() =>
+            {
+                Uploading();
+            });
         }
         private void Uploading()
         {
@@ -1019,16 +1013,6 @@ namespace ASI_POS
                 ShowStatus($"FTP Error: {ex.Message}", 2);
             }
         }
-
-        //private void timer1_Tick(object sender, EventArgs e)
-        //{
-        //    timer1.Enabled = false;
-        //    if (Argsprams != "")
-        //    {
-        //        btnUpload.PerformClick();
-        //        Environment.Exit(Environment.ExitCode);
-        //    }
-        //}
         public decimal Getfscusamount()
         {
             settings.LoadSettings();
@@ -1062,20 +1046,44 @@ namespace ASI_POS
                 return 0;
             }
         }
-
         private void btnExit_Click(object sender, EventArgs e)
         {
             this.Close();
         }
-
-        private void btndownload_Click(object sender, EventArgs e)// Download
+        private async void btndownload_Click(object sender, EventArgs e)// Download
         {
-            download.DownloadAllXmlFilesFromFtp();
+            btndownload.Enabled = false;
+            try
+            {
+                await RunDownloadAsync();
+            }
+            finally
+            {
+                btndownload.Enabled = true;
+            }
         }
-
-        private void button1_Click(object sender, EventArgs e)//Installation
+        private Task RunDownloadAsync()
         {
-            download.Install();
+            return Task.Run(() =>
+            {
+                download.DownloadAllXmlFilesFromFtp();
+            });
+        }
+        private async void button1_Click(object sender, EventArgs e)//Installation
+        {
+            button1.Enabled = false;
+            try
+            {
+                await RunInstallAsync();
+            }
+            finally
+            {
+                button1.Enabled = true;
+            }
+        }
+        private Task RunInstallAsync()
+        {
+            return Task.Run(() => { download.Install(); });
         }
         private void InitStatusGrid()
         {
@@ -1100,7 +1108,54 @@ namespace ASI_POS
 
             dataGridView1.DefaultCellStyle.Font = new Font("Segoe UI", 12F, FontStyle.Regular);
         }
+        private void timer1_Tick(object sender, EventArgs e)//Timmer
+        {
+            // Upload
+            remainingUploadSeconds--;
+            if (remainingUploadSeconds <= 0)
+            {
+                _ = UploadScheduledTask();
+                remainingUploadSeconds = uploadIntervalSeconds;
+            }
 
+            // Download
+            remainingDownloadSeconds--;
+            if (remainingDownloadSeconds <= 0 && !downloadRunning)
+            {
+                _ = DownloadScheduledTask();
+                remainingDownloadSeconds = downloadIntervalSeconds;
+            }
+
+            UpdateUploadText();
+            UpdateDownloadText();
+        }
+        private async Task UploadScheduledTask()
+        {
+            if(settings.updateCustomerFiles)
+                await Task.Run(() => Uploading());
+        }
+
+        private async Task DownloadScheduledTask()
+        {
+            if (downloadRunning)
+                return;
+            downloadRunning = true;
+            if(settings.DownloadFilesToFTP)
+                await Task.Run(() => download.DownloadAllXmlFilesFromFtp());
+            remainingDownloadSeconds = downloadIntervalSeconds;
+            downloadRunning = false;
+        }
+        private void UpdateUploadText()
+        {
+            var t = TimeSpan.FromSeconds(remainingUploadSeconds);
+            txtuploadtime.Text = $"{t.Minutes:D2}:{t.Seconds:D2}";
+        }
+
+        private void UpdateDownloadText()
+        {
+            var t = TimeSpan.FromSeconds(remainingDownloadSeconds);
+            txtdownloadtime.Text = $"{t.Minutes:D2}:{t.Seconds:D2}";
+        }
     }
     public static class DataRowExtensions
     {

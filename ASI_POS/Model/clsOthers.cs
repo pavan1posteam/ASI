@@ -23,7 +23,10 @@ namespace ASI_POS.Model
         public bool enablefrequentFile { get; set; }
         public string mobileregister { get; set; }
         public string mobilecashier { get; set; }
-
+        public int uploadminute { get; set; }
+        public int downloadminute { get; set; }
+        public bool uploadfilestoftp { get; set; }
+        public bool downloadfilestoftp { get; set; }
 
     }
 }
