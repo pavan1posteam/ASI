@@ -53,7 +53,7 @@ namespace ASI_POS
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
             _isLoaded = true;
             InitStatusGrid();
@@ -74,12 +74,7 @@ namespace ASI_POS
             UpdateDownloadText();
             while (_pendingStatus.TryDequeue(out var msg))
             {
-                try { ShowStatus(msg); } catch {  }
-            }
-            string pathProduct = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "config");
-            if (!Directory.Exists(pathProduct))
-            {
-                Directory.CreateDirectory("config");
+                try { ShowStatus(msg); } catch { }
             }
             string pathProduct1 = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Upload");
             if (!Directory.Exists(pathProduct1))
@@ -87,36 +82,11 @@ namespace ASI_POS
                 Directory.CreateDirectory("Upload");
 
             }
-            if (!File.Exists("config\\dbsettings.txt"))
-            {
-                FileStream fs;
-                fs = System.IO.File.Open("config\\dbsettings.txt", FileMode.OpenOrCreate, FileAccess.Read, FileShare.None);
-                fs.Close();
-            }
-            if (!File.Exists("config\\ftpsettings.txt"))
-            {
-                FileStream fs;
-                fs = System.IO.File.Open(@"config\\ftpsettings.txt", FileMode.OpenOrCreate, FileAccess.Read, FileShare.None);
-                fs.Close();
-            }
-            if (!File.Exists("config\\cat.txt"))
-            {
-                FileStream fs;
-                fs = System.IO.File.Open(@"config\\cat.txt", FileMode.OpenOrCreate, FileAccess.Read, FileShare.None);
-                fs.Close();
-            }
-            if (!File.Exists("config\\others.txt"))
-            {
-                FileStream fs;
-                fs = System.IO.File.Open(@"config\\others.txt", FileMode.OpenOrCreate, FileAccess.Read, FileShare.None);
-                fs.Close();
-            }
             if (Argsprams != "")
             {
-                Uploading();
-                //Environment.Exit(0);
+                await Task.Run(() => Uploading());
             }
-            
+
         }
 
         private void btnSettings_Click(object sender, EventArgs e)
@@ -197,23 +167,19 @@ namespace ASI_POS
             settings.LoadSettings();
             DataTable dtResult = new DataTable();
             DataTable dtfullname = new DataTable();
-            if (new FileInfo(@"config\dbsettings.txt").Length != 0 && new FileInfo(@"config\ftpsettings.txt").Length != 0) 
+            if (File.Exists(@"data.enc"))
             {
                 ShowStatus("Connecting to Database", 1);
-                string jsoncats;
-                var FileStream = new FileStream(@"config\cat.txt", FileMode.Open, FileAccess.Read);
-                using (var StreamReader = new StreamReader(FileStream, Encoding.UTF8))
-                {
-                    jsoncats = StreamReader.ReadToEnd();
-                    StreamReader.Close();
-                }
-                FileStream.Close();
-                clsCategories[] clscat;
+                byte[] encrypted = File.ReadAllBytes("data.enc");
+                string json = Form2.Decrypt(encrypted);
+                var apps = JsonConvert.DeserializeObject<List<AppSettings>>(json);
+                AppSettings app = apps[0];
+                List<clsCategories> clscat;
                 List<clscategory> cats = new List<clscategory>();
-                if (!string.IsNullOrEmpty(jsoncats))
+
+                if (app.Categories.Count > 0)
                 {
-                    
-                    clscat = JsonConvert.DeserializeObject<clsCategories[]>(jsoncats);
+                    clscat = app.Categories;
                     string strcats = "";
                     List<string> catlist = new List<string>();
                     foreach (clsCategories cat in clscat)
@@ -246,7 +212,7 @@ namespace ASI_POS
                     int QtyperPack = Convert.ToInt32(settings.QtyperPack);
                     string Inet_Value = settings.InvetValue;
                     string PriceLevels = settings.PrcLevels;
-                    var values = settings.Stat.Split(',').Select(x => x.Trim()).Where(x => int.TryParse(x, out _)).Select(x => $"'{x}'");   
+                    var values = settings.Stat.Split(',').Select(x => x.Trim()).Where(x => int.TryParse(x, out _)).Select(x => $"'{x}'");
                     string stat = string.Join(",", values);
 
                     dtResult = CreateStructure();
@@ -258,8 +224,8 @@ namespace ASI_POS
                     liqtbl += "p.PRICE as Price,p.PROMO as promcode, 0 as sprice,p.SALE as sprce1,'' as Start, '' as end, p.DCODE as DiscountCode,'' as altupc1,";
                     liqtbl += "'' as altupc2,'' as altupc3,'' as altupc4,'' as altupc5,i.VINTAGE as vintage,  i.ACOST as Cost,i.TYPENAME as pcat,'' as pcat1,'' as pcat2,'' as country, '' as region  ";
                     liqtbl += "FROM ((inv i left join upc u on i.SKU = u.SKU) left join stk s on i.SKU = s.SKU) left join prc p on i.SKU = p.SKU  ";
-                    liqtbl += "where s.STAT in ("+ stat + ") and p.STORE =  " + AsiId + " and s.STORE = " + AsiId + " ";// + strStock + strcats
-                    
+                    liqtbl += "where s.STAT in (" + stat + ") and p.STORE =  " + AsiId + " and s.STORE = " + AsiId + " ";// + strStock + strcats
+
                     string depositquery = "Select DEPOS as depcode, UNIT as depositvalue from DEP";
                     string saledatequery = "Select  PROMO as promocode, START as sdate, STOP as edate from slh";
                     string taxquery = "Select  CODE as taxcode, RATE as taxrate, cat as tcat, level as taxlevel from txc ";
@@ -366,7 +332,7 @@ namespace ASI_POS
                     {
                         ShowStatus($"Error: {ex.Message}", 2);
                     }
-                    
+
                     #region Product File
                     DataTable finalResult = new DataTable();
                     finalResult.Columns.Add("StoreId", typeof(string));
@@ -523,7 +489,7 @@ namespace ASI_POS
                         }
                         newRow["StoreProductName"] = dr["StoreProductName"];
                         string productDesc = dr["StoreDescription"].ToString();
-                        productDesc = productDesc.Replace("\r", " ").Replace("\n", " ").Replace("\"", "")  .Trim();
+                        productDesc = productDesc.Replace("\r", " ").Replace("\n", " ").Replace("\"", "").Trim();
 
                         if (string.IsNullOrEmpty(productDesc))
                             productDesc = dr["StoreProductName"].ToString();
@@ -546,7 +512,7 @@ namespace ASI_POS
                         newRow["Altupc4"] = dr["Altupc4"];
                         newRow["Altupc5"] = dr["Altupc5"];
                         string vintage_value = dr["vintage"].ToString();
-                        newRow["Vintage"] = Regex.IsMatch(vintage_value, @"^\d{4,}")? dr["vintage"]: "";
+                        newRow["Vintage"] = Regex.IsMatch(vintage_value, @"^\d{4,}") ? dr["vintage"] : "";
                         if (settings.AddDiscountable)
                         {
                             var chk = dr["Discountable"];
@@ -595,7 +561,7 @@ namespace ASI_POS
                             {
                                 newRow["Sprice"] = dr["sprce1"];
                                 decimal spricecheck = Convert.ToDecimal(newRow["Sprice"].ToString());
-                                if(spricecheck > 0)
+                                if (spricecheck > 0)
                                 {
                                     if (!drprom["sdate"].ToString().Contains("1899"))
                                         newRow["Start"] = drprom["sdate"];
@@ -609,7 +575,7 @@ namespace ASI_POS
                             }
                         }
 
-                        if (Inet_Value.Contains(INETVALUE) && PriceLevels.Contains(prcLevel)  && pqty >= 0)//&& INETVALUE.Equals(prcLevel)
+                        if (Inet_Value.Contains(INETVALUE) && PriceLevels.Contains(prcLevel) && pqty >= 0)//&& INETVALUE.Equals(prcLevel)
                         {
                             if (catlist.Contains(invcat))
                             {
@@ -618,7 +584,7 @@ namespace ASI_POS
 
                                 skuLookup[sku] = newRow;
                             }
-                            
+
                         }
                     }
                     if (settings.InclNoUpcProducts)//Include No UPCs Products
@@ -650,7 +616,7 @@ namespace ASI_POS
                                 continue;
                             if (existingSkus.Contains("#" + sku))
                                 continue;
-                            
+
                             newRow["StoreId"] = dr["StoreId"];
                             newRow["Sku"] = "#" + sku;
                             newRow["Upc"] = generatedUpc;
@@ -790,7 +756,7 @@ namespace ASI_POS
                                 existingSkus.Add("#" + sku);
                                 existingUpcs.Add(generatedUpc);
                             }
-                            
+
                         }
                     }
                     if (settings.FrequentFile)
@@ -831,7 +797,7 @@ namespace ASI_POS
                     ShowStatus("Uploading " + filename);
                     Upload("Upload//" + filename);
                     if (!settings.FrequentFile)
-                        ShowStatus("Inventory Upload completed", 1);
+                        ShowStatus("Inventory Upload Completed", 1);
                     if (File.Exists("Upload//" + filename))
                     {
                         if (File.Exists("Upload//" + filename))
@@ -844,7 +810,7 @@ namespace ASI_POS
                         filename = generateCSV.GenerateCSVFile(FrequentResult, true);
                         ShowStatus("Uploading " + filename);
                         Upload("Upload//" + filename);
-                        ShowStatus("Inventory Upload completed", 1);
+                        ShowStatus("Inventory Upload Completed", 1);
                         if (File.Exists("Upload//" + filename))
                         {
                             if (File.Exists("Upload//" + filename))
@@ -1026,7 +992,7 @@ namespace ASI_POS
 
             try
             {
-                using(var conn = new OleDbConnection(connStr))
+                using (var conn = new OleDbConnection(connStr))
                 using (var cmd = conn.CreateCommand())
                 {
                     conn.Open();
@@ -1042,7 +1008,7 @@ namespace ASI_POS
             }
             catch (Exception ex)
             {
-                ShowStatus($"Frequent failed: {ex.Message}",2);
+                ShowStatus($"Frequent failed: {ex.Message}", 2);
                 return 0;
             }
         }
@@ -1131,7 +1097,7 @@ namespace ASI_POS
         }
         private async Task UploadScheduledTask()
         {
-            if(settings.updateCustomerFiles)
+            if (settings.updateCustomerFiles)
                 await Task.Run(() => Uploading());
         }
 
@@ -1140,7 +1106,7 @@ namespace ASI_POS
             if (downloadRunning)
                 return;
             downloadRunning = true;
-            if(settings.DownloadFilesToFTP)
+            if (settings.DownloadFilesToFTP)
                 await Task.Run(() => download.DownloadAllXmlFilesFromFtp());
             remainingDownloadSeconds = downloadIntervalSeconds;
             downloadRunning = false;

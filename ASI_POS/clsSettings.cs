@@ -56,81 +56,56 @@ namespace ASI_POS
         public bool DownloadFilesToFTP { get; set; }
         public void LoadSettings()
         {
-            string json;
-            if (File.Exists("config//dbsettings.txt") && File.Exists("config//ftpsettings.txt") && File.Exists("config//others.txt"))
+            if (File.Exists(@"data.enc"))
             {
-                var fileStream = new FileStream(@"config\dbsettings.txt", FileMode.Open, FileAccess.Read);
-                using (var streamReader = new StreamReader(fileStream, Encoding.UTF8))
-                {
-                    json = streamReader.ReadToEnd();
-                }
-                clsDbSettings clsdb = JsonConvert.DeserializeObject<clsDbSettings>(json);
-
-                if (clsdb != null)
-                {
-                    serverpath = clsdb.selectpath;
-                    FtpUpFolder = clsdb.UpFolder;
-                    FtpDownFolder = clsdb.DownFolder;
-                    TaxCode = clsdb.TaxCode;
-                    ServiceFee = clsdb.service_fee;
-                    ShippingCat = clsdb.shipCat;
-                    TipCat = clsdb.tipCat;
-                    DiscountCat = clsdb.discountCat;
-                    visa = clsdb.visa;
-                    amex = clsdb.amex;
-                    mastercard = clsdb.mastercard;
-                    discover = clsdb.discover;
-                    generic = clsdb.generic;
-                }
-                    
-
+                byte[] encrypted = File.ReadAllBytes("data.enc");
+                string json = Form2.Decrypt(encrypted);
+                var apps = JsonConvert.DeserializeObject<List<AppSettings>>(json);
+                AppSettings app = apps[0];
+                clsDbSettings clsdb = app.Db;
+                clsFtpSettings clsFTP = app.Ftp;
+                clsOthers others = app.Other;
+                serverpath = clsdb.selectpath;
                 ConnectionString = String.Format("Provider=VFPOLEDB;Data Source={0};Collating Sequence=machine;Mode=Share Deny None;", serverpath);
-
-                fileStream = new FileStream(@"config\ftpsettings.txt", FileMode.Open, FileAccess.Read);
-                using (var streamReader = new StreamReader(fileStream, Encoding.UTF8))
-                {
-                    json = streamReader.ReadToEnd();
-                }
-                clsFtpSettings clsFTP = JsonConvert.DeserializeObject<clsFtpSettings>(json);
-                if (clsFTP != null)
-                {
-                    StoreId = clsFTP.StoreId;
-                    FtpServer = clsFTP.Server;
-                    FtpUserName = clsFTP.FtpUserName;
-                    FtpPassword = clsFTP.FtpPassword;
-                    Asi_Store_Id = clsFTP.Asi_StoreId;
-                    webstore = clsFTP.mobilestore;
-                }
-                // For Others Settings
-                fileStream = new FileStream(@"config\others.txt", FileMode.Open, FileAccess.Read);
-                using (var StreamReader = new StreamReader(fileStream, Encoding.UTF8))
-                {
-                    json = StreamReader.ReadToEnd();
-                }
-                clsOthers others = JsonConvert.DeserializeObject<clsOthers>(json);
-                if (others != null)
-                {
-                    MarkUpPrice = others.MarkUpPrice;
-                    StockedItems = others.StockedItems;
-                    InvetValue = others.Inet_Value;
-                    QtyperPack = others.QtyPack;
-                    InclNoUpcProducts = others.NoUpcProducts;
-                    PrcLevels = others.PLevels;
-                    AddDiscountable = others.chkDiscountable;
-                    IncludeFloor = others.chkfloor;
-                    AllQtyperPack = others.AllQtyPack;
-                    Stat = others.Statvalue;
-                    updateCustomerFiles = others.updatecustomerfiles;
-                    updateClubcardNo = others.updatecclubcardnos;
-                    Mobile_Register = others.mobileregister;
-                    Mobile_Cashier = others.mobilecashier;
-                    FrequentFile = others.enablefrequentFile;
-                    UploadTime = others.uploadminute;
-                    DownloadTime = others.downloadminute;
-                    UploadFilesToFTP = others.uploadfilestoftp;
-                    DownloadFilesToFTP = others.downloadfilestoftp;
-                }
+                FtpUpFolder = clsdb.UpFolder;
+                FtpDownFolder = clsdb.DownFolder;
+                TaxCode = clsdb.TaxCode;
+                ServiceFee = clsdb.service_fee;
+                ShippingCat = clsdb.shipCat;
+                TipCat = clsdb.tipCat;
+                DiscountCat = clsdb.discountCat;
+                visa = clsdb.visa;
+                amex = clsdb.amex;
+                mastercard = clsdb.mastercard;
+                discover = clsdb.discover;
+                generic = clsdb.generic;
+                StoreId = clsFTP.StoreId;
+                FtpServer = clsFTP.Server;
+                FtpUserName = clsFTP.FtpUserName;
+                FtpPassword = clsFTP.FtpPassword;
+                Asi_Store_Id = clsFTP.Asi_StoreId;
+                webstore = clsFTP.mobilestore;
+                MarkUpPrice = others.MarkUpPrice;
+                StockedItems = others.StockedItems;
+                InvetValue = others.Inet_Value;
+                QtyperPack = others.QtyPack;
+                InclNoUpcProducts = others.NoUpcProducts;
+                PrcLevels = others.PLevels;
+                AddDiscountable = others.chkDiscountable;
+                IncludeFloor = others.chkfloor;
+                AllQtyperPack = others.AllQtyPack;
+                Stat = others.Statvalue;
+                updateCustomerFiles = others.updatecustomerfiles;
+                updateClubcardNo = others.updatecclubcardnos;
+                Mobile_Register = others.mobileregister;
+                Mobile_Cashier = others.mobilecashier;
+                FrequentFile = others.enablefrequentFile;
+                UploadTime = others.uploadminute;
+                DownloadTime = others.downloadminute;
+                UploadFilesToFTP = others.uploadfilestoftp;
+                DownloadFilesToFTP = others.downloadfilestoftp;
             }
+
         }
     }
 }

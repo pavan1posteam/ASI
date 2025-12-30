@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using Newtonsoft.Json;
 using ASI_POS.Model;
 using System.Text.RegularExpressions;
+using System.Security.Cryptography;
 
 namespace ASI_POS
 {
@@ -20,7 +21,12 @@ namespace ASI_POS
         DataTable dtCat;
         clsSettings settings = new clsSettings();
         public event Action SettingsUpdated;
+        List<clsCategories> categories = new List<clsCategories>();
+        private static readonly byte[] Key =
+        Encoding.UTF8.GetBytes("Bottlecapps-Secret-Key!!"); // 32 bytes
 
+        private static readonly byte[] IV =
+            Encoding.UTF8.GetBytes("16ByteInitVector"); // 16 bytes
         public Form2()
         {
             InitializeComponent();
@@ -30,24 +36,26 @@ namespace ASI_POS
         {
             AddHeaderCheckBox();
             HeaderCheckBox.MouseClick += new MouseEventHandler(HeaderCheckBox_MouseClick);
-            if (File.Exists("config//dbsettings.txt") && File.Exists("config//ftpsettings.txt") && File.Exists("config//others.txt"))
+            if (File.Exists(@"data.enc"))
             {
+                byte[] encrypted = File.ReadAllBytes("data.enc");
+                string json2 = Decrypt(encrypted);
+                var apps = JsonConvert.DeserializeObject<List<AppSettings>>(json2);
+                AppSettings app = apps[0];
                 settings.LoadSettings();
-
-                textpath.Text = settings.serverpath;
-
-                txtStoreID.Text = settings.StoreId;
-                txtFTPpwd.Text = settings.FtpPassword;
-                txtFTPserver.Text = settings.FtpServer;
-                txtFTPuid.Text = settings.FtpUserName;
-                txtUPFolder.Text = settings.FtpUpFolder;
-                txtdownloadpath.Text = settings.FtpDownFolder;
-                txtasistoreid.Text = settings.Asi_Store_Id;
-                txtInetValue.Text = settings.InvetValue;
-                txtPrcLvl.Text = settings.PrcLevels;
-                txttaxcode.Text = settings.TaxCode;
-                txtstat.Text = settings.Stat;
-                if (settings.StockedItems == 0)
+                textpath.Text = app.Db.selectpath;
+                txtStoreID.Text = app.Ftp.StoreId;
+                txtFTPpwd.Text = app.Ftp.FtpPassword;
+                txtFTPserver.Text = app.Ftp.Server;
+                txtFTPuid.Text = app.Ftp.FtpUserName;
+                txtUPFolder.Text = app.Db.UpFolder;
+                txtdownloadpath.Text = app.Db.DownFolder;
+                txtasistoreid.Text = app.Ftp.Asi_StoreId;
+                txtInetValue.Text = app.Other.Inet_Value;
+                txtPrcLvl.Text = app.Other.PLevels;
+                txttaxcode.Text = app.Db.TaxCode;
+                txtstat.Text = app.Other.Statvalue;
+                if (app.Other.StockedItems == 0)
                 {
                     chkStoked.Checked = false;
                 }
@@ -55,7 +63,7 @@ namespace ASI_POS
                 {
                     chkStoked.Checked = true;
                 }
-                if (settings.QtyperPack == 0)
+                if (app.Other.QtyPack == 0)
                 {
                     chkqtypack.Checked = false;
                 }
@@ -63,7 +71,7 @@ namespace ASI_POS
                 {
                     chkqtypack.Checked = true;
                 }
-                if (settings.InclNoUpcProducts)
+                if (app.Other.NoUpcProducts)
                 {
                     chkNoUpc.Checked = true;
                 }
@@ -71,33 +79,30 @@ namespace ASI_POS
                 {
                     chkNoUpc.Checked = false;
                 }
-                chkdiscountable.Checked = settings.AddDiscountable;
-                chkfloor.Checked = settings.IncludeFloor;
-                chkallqtyperpack.Checked = settings.AllQtyperPack;
-                chkupcustomerfiles.Checked = settings.updateCustomerFiles;
-                chkclubcardno.Checked = settings.updateClubcardNo;
-                txtwebstore.Text = settings.webstore;
-                textMarkUp.Text = settings.MarkUpPrice.ToString();
-                txtservicefee.Text = settings.ServiceFee;
-                txtmobileregister.Text = settings.Mobile_Register;
-                txtmobilecashier.Text = settings.Mobile_Cashier;
-                txtShippingCat.Text = settings.ShippingCat;
-                txtTipCat.Text = settings.TipCat;
-                txtDiscountCat.Text = settings.DiscountCat;
-                txtVisa.Text = settings.visa;
-                txtAmex.Text = settings.amex;
-                txtMc.Text = settings.mastercard;
-                txtDiscover.Text = settings.discover;
-                txtGeneric.Text = settings.generic;
-                chkfrequent.Checked = settings.FrequentFile;
-                numericUpload.Value = settings.UploadTime;
-                numericDownload.Value = settings.DownloadTime;
-                chkuploadfilesftp.Checked = settings.UploadFilesToFTP;
-                chkdownloadfilesftp.Checked = settings.DownloadFilesToFTP;
-            }
-            if (File.Exists("config//cat.txt"))
-            {
-                loadCats();
+                chkdiscountable.Checked = app.Other.chkDiscountable;
+                chkfloor.Checked = app.Other.chkfloor;
+                chkallqtyperpack.Checked = app.Other.AllQtyPack;
+                chkupcustomerfiles.Checked = app.Other.uploadfilestoftp;
+                chkclubcardno.Checked = app.Other.updatecclubcardnos;
+                txtwebstore.Text = app.Ftp.mobilestore;
+                textMarkUp.Text = app.Other.MarkUpPrice.ToString();
+                txtservicefee.Text = app.Db.service_fee;
+                txtmobileregister.Text = app.Other.mobileregister;
+                txtmobilecashier.Text = app.Other.mobilecashier;
+                txtShippingCat.Text = app.Db.shipCat;
+                txtTipCat.Text = app.Db.tipCat;
+                txtDiscountCat.Text = app.Db.discountCat;
+                txtVisa.Text = app.Db.visa;
+                txtAmex.Text = app.Db.amex;
+                txtMc.Text = app.Db.mastercard;
+                txtDiscover.Text = app.Db.discover;
+                txtGeneric.Text = app.Db.generic;
+                chkfrequent.Checked = app.Other.enablefrequentFile;
+                numericUpload.Value = app.Other.uploadminute;
+                numericDownload.Value = app.Other.downloadminute;
+                chkuploadfilesftp.Checked = app.Other.uploadfilestoftp;
+                chkdownloadfilesftp.Checked = app.Other.downloadfilestoftp;
+                loadCats(app.Categories);
             }
 
         }
@@ -117,6 +122,11 @@ namespace ASI_POS
 
         private void btnDbSave_Click(object sender, EventArgs e)
         {
+            btnFTPSave_Click(sender, e);
+        }
+
+        private void btnFTPSave_Click(object sender, EventArgs e)
+        {
             clsDbSettings clsdb = new clsDbSettings();
             clsdb.selectpath = textpath.Text;
             clsdb.UpFolder = txtUPFolder.Text;
@@ -131,155 +141,16 @@ namespace ASI_POS
             clsdb.mastercard = txtMc.Text;
             clsdb.discover = txtDiscover.Text;
             clsdb.generic = txtGeneric.Text;
-            try
-            {
-                Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
-                using (StreamWriter sw = new StreamWriter(@"config\dbsettings.txt"))
-                using (Newtonsoft.Json.JsonTextWriter writer = new Newtonsoft.Json.JsonTextWriter(sw))
-                {
-                    serializer.Serialize(writer, clsdb);
-                    sw.Close();
-                    writer.Close();
-                }
-                MessageBox.Show("Saved Sucessfully!!", "Connection Status");
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Connection Failure, Please check Database settings", "Connection Status");
-            }
-            //loadCats();
-            settings.LoadSettings();
-        }
 
-        private void btnFTPSave_Click(object sender, EventArgs e)
-        {
-            if (txtStoreID.Text.Trim().Length == 0 || txtFTPserver.Text.Trim().Length == 0 || txtFTPuid.Text.Trim().Length == 0 || txtFTPpwd.Text.Trim().Length == 0 || txtUPFolder.Text.Trim().Length == 0 || txttaxcode.Text.Trim().Length == 0)
-            {
-                MessageBox.Show("All fields are mandatory !", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            else
-            {
-                clsFtpSettings clsftp = new clsFtpSettings();
-                clsftp.StoreId = txtStoreID.Text;
-                clsftp.Server = txtFTPserver.Text;
-                clsftp.FtpUserName = txtFTPuid.Text;
-                clsftp.FtpPassword = txtFTPpwd.Text;
-                clsftp.Asi_StoreId = txtasistoreid.Text;
-                clsftp.mobilestore = txtwebstore.Text;
-                Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
-                using (StreamWriter sw = new StreamWriter(@"config\ftpsettings.txt"))
-                using (Newtonsoft.Json.JsonTextWriter writer = new Newtonsoft.Json.JsonTextWriter(sw))
-                {
-                    serializer.Serialize(writer, clsftp);
-                    sw.Close();
-                    writer.Close();
-                }
-            }
-            MessageBox.Show("Saved Sucessfully!!", "Ftp Setting", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            settings.LoadSettings();
-        }
 
-        private void btnCatsave_Click(object sender, EventArgs e)
-        {
-            var query = from r in dtCat.AsEnumerable()
-                        select new
-                        {
-                            sel = r.IsNull("sel") ? 0 : Convert.ToInt32(r["sel"]),
-                            ID = r.IsNull("ID") ? "0" : r.Field<string>("ID"),
-                            Depart = r.Field<string>("Name"),
-                            Taxlevel = r.IsNull("Taxlevel") ? 0 : Convert.ToInt32(r["Taxlevel"])
-                        };
-            if (query.Count() == 0)
-            {
-                MessageBox.Show(" Select Categories ", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            else
-            {
-                Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
-                using (StreamWriter sw = new StreamWriter(@"config\cat.txt"))
-                using (Newtonsoft.Json.JsonTextWriter writer = new Newtonsoft.Json.JsonTextWriter(sw))
-                {
-                    serializer.Serialize(writer, query);
-                    sw.Close();
-                    writer.Close();
-                }
-            }
-            MessageBox.Show("Saved Sucessfully!!", "Category", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-        private void loadCats()
-        {
-            string jsoncats;
-            var fileStream = new FileStream(@"config\cat.txt", FileMode.Open, FileAccess.Read);
-            using (var streamReader = new StreamReader(fileStream, Encoding.UTF8))
-            {
-                jsoncats = streamReader.ReadToEnd();
-            }
-            clsCategories[] clscat = JsonConvert.DeserializeObject<clsCategories[]>(jsoncats);
-            OleDbConnection con;
-            try
-            {
-                dtCat = new System.Data.DataTable();
-                dataGridView1.AutoGenerateColumns = false;
-                string servername = System.Environment.MachineName.ToString();
-                string connectionstring = settings.ConnectionString;
-                con = new OleDbConnection(connectionstring);
+            clsFtpSettings clsftp = new clsFtpSettings();
+            clsftp.StoreId = txtStoreID.Text;
+            clsftp.Server = txtFTPserver.Text;
+            clsftp.FtpUserName = txtFTPuid.Text;
+            clsftp.FtpPassword = txtFTPpwd.Text;
+            clsftp.Asi_StoreId = txtasistoreid.Text;
+            clsftp.mobilestore = txtwebstore.Text;
 
-                OleDbCommand cmd = new OleDbCommand("SELECT DISTINCT 0 as sel,CAT as ID, Name, Taxlevel FROM cat ", con);
-                con.Open();
-                cmd.ExecuteNonQuery();
-                OleDbDataAdapter adp = new OleDbDataAdapter(cmd);
-                adp.Fill(dtCat);
-
-                if (clscat != null)
-                {
-                    foreach (var itm in clscat)
-                    {
-                        if(itm.Sel == 1)
-                        {
-                            string depart = itm.Depart.ToString().Replace("'", "''");
-                            DataRow row = dtCat.Select($"Name='{depart}'").FirstOrDefault();
-
-                            if (row != null)
-                            {
-                                row["sel"] = 1;
-                            }
-                        }
-                    }
-                }
-
-                dataGridView1.ColumnCount = 3;
-
-                //Add Columns
-                dataGridView1.Columns[0].Name = "sel";
-                dataGridView1.Columns[0].HeaderText = "Select";
-                dataGridView1.Columns[0].DataPropertyName = "sel";
-
-                dataGridView1.Columns[1].Name = "CAT_ID";
-                dataGridView1.Columns[1].HeaderText = "ID";
-                dataGridView1.Columns[1].DataPropertyName = "ID";
-
-                dataGridView1.Columns[2].Name = "Description";
-                dataGridView1.Columns[2].HeaderText = "Name";
-                dataGridView1.Columns[2].DataPropertyName = "Name";
-                dataGridView1.Columns[2].Width = 400;
-                dataGridView1.DataSource = dtCat.DefaultView;
-
-                dataGridView1.DataSource = dtCat.DefaultView;
-
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message);
-            }
-            finally
-            {
-            }
-        }
-
-        private void btnOtherSave_Click(object sender, EventArgs e)
-        {
             clsOthers others = new clsOthers();
             others.MarkUpPrice = Convert.ToDecimal(textMarkUp.Text);
             others.Inet_Value = txtInetValue.Text;
@@ -300,15 +171,134 @@ namespace ASI_POS
             others.downloadminute = (int)numericDownload.Value;
             others.uploadfilestoftp = chkuploadfilesftp.Checked;
             others.downloadfilestoftp = chkdownloadfilesftp.Checked;
-            JsonSerializer serializer = new JsonSerializer();
-            using (StreamWriter sw = new StreamWriter(@"config\others.txt"))
-            using (JsonTextWriter writer = new JsonTextWriter(sw))
+
+            List<AppSettings> app = new List<AppSettings>();
+            AppSettings appSettings = new AppSettings();
+            appSettings.Db = clsdb;
+            appSettings.Ftp = clsftp;
+            appSettings.Other = others;
+
+            appSettings.Categories = GetCategoriesFromGrid();
+            app.Add(appSettings);
+            string json2 = JsonConvert.SerializeObject(app);
+            byte[] encrypted = Encrypt(json2);
+            File.WriteAllBytes("data.enc", encrypted);
+            settings.LoadSettings();
+        }
+        private static byte[] Encrypt(string plainText)
+        {
+            using (var aes = Aes.Create())
             {
-                serializer.Serialize(writer, others);
-                sw.Close();
-                writer.Close();
+                aes.Key = Key;
+                aes.IV = IV;
+                using (var encryptor = aes.CreateEncryptor())
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        using (var cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+                        {
+                            using (var sw = new StreamWriter(cs))
+                            {
+                                sw.Write(plainText);
+                                sw.Close();
+                                return ms.ToArray();
+                            }
+                        }
+                    }
+                }
             }
-            MessageBox.Show("Saved Successfully !!", "Others", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        public static string Decrypt(byte[] cipher)
+        {
+            using (var aes = Aes.Create())
+            {
+                aes.Key = Key;
+                aes.IV = IV;
+                using (var decryptor = aes.CreateDecryptor())
+                {
+                    using (var ms = new MemoryStream(cipher))
+                    {
+                        using (var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
+                        {
+                            using (var sr = new StreamReader(cs))
+                            {
+                                return sr.ReadToEnd();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        private void btnCatsave_Click(object sender, EventArgs e)
+        {
+            btnFTPSave_Click(sender, e);
+        }
+        private void loadCats(List<clsCategories> categories)
+        {
+            var savedCats = categories;
+
+            dtCat = new DataTable();
+            dataGridView1.AutoGenerateColumns = false;
+
+            using (var con = new OleDbConnection(settings.ConnectionString))
+            using (var cmd = new OleDbCommand("SELECT DISTINCT 0 as sel, CAT as ID, Name, Taxlevel FROM cat", con))
+            using (var adp = new OleDbDataAdapter(cmd))
+            {
+                adp.Fill(dtCat);
+            }
+
+            // apply saved selections
+            foreach (var saved in savedCats.Where(c => c.Sel == 1))
+            {
+                var row = dtCat.AsEnumerable()
+                               .FirstOrDefault(r => r["Name"].ToString() == saved.Depart);
+
+                if (row != null)
+                    row["sel"] = 1;
+            }
+
+            dataGridView1.ColumnCount = 3;
+
+            //Add Columns
+            dataGridView1.Columns[0].Name = "sel";
+            dataGridView1.Columns[0].HeaderText = "Select";
+            dataGridView1.Columns[0].DataPropertyName = "sel";
+
+            dataGridView1.Columns[1].Name = "CAT_ID";
+            dataGridView1.Columns[1].HeaderText = "ID";
+            dataGridView1.Columns[1].DataPropertyName = "ID";
+
+            dataGridView1.Columns[2].Name = "Description";
+            dataGridView1.Columns[2].HeaderText = "Name";
+            dataGridView1.Columns[2].DataPropertyName = "Name";
+            dataGridView1.Columns[2].Width = 400;
+            dataGridView1.DataSource = dtCat.DefaultView;
+
+            dataGridView1.DataSource = dtCat.DefaultView;
+        }
+        private List<clsCategories> GetCategoriesFromGrid()
+        {
+            var list = new List<clsCategories>();
+
+            if (dtCat == null) return list;
+
+            foreach (DataRow row in dtCat.Rows)
+            {
+                list.Add(new clsCategories
+                {
+                    Sel = row["sel"] == DBNull.Value ? 0 : Convert.ToInt32(row["sel"]),
+                    ID = row["ID"]?.ToString() ?? "0",
+                    Depart = row["Name"]?.ToString() ?? "",
+                    Taxlevel = row["Taxlevel"] == DBNull.Value ? 0 : Convert.ToInt32(row["Taxlevel"])
+                });
+            }
+
+            return list;
+        }
+        private void btnOtherSave_Click(object sender, EventArgs e)
+        {
+            btnFTPSave_Click(sender, e);
             SettingsUpdated?.Invoke();
 
         }
@@ -325,7 +315,7 @@ namespace ASI_POS
             IsHeaderCheckBoxClicked = true;
             foreach (DataGridViewRow dgvr in dataGridView1.Rows)
             {
-                ((DataGridViewCheckBoxCell)dgvr.Cells["Sel"]).Value = HCheckBox.Checked;
+                ((DataGridViewCheckBoxCell)dgvr.Cells["sel"]).Value = HCheckBox.Checked;
                 dataGridView1.RefreshEdit();
                 IsHeaderCheckBoxClicked = false;
             }

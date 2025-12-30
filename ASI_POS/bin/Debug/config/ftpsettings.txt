@@ -1,1 +1,0 @@
-{"StoreId":"10001","Server":"54.174.152.95","FtpUserName":"AAAStore_10000","FtpPassword":"A5t0r3@10000","TaxCode":"CITYEX","Asi_StoreId":"1","mobilestore":"1","service_fee":"198"}

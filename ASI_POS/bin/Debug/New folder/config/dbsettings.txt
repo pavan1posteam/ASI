@@ -1,1 +1,0 @@
-{"selectpath":"C:\\ksv\\Data","UpFolder":"Upload","DownFolder":"Raw"}

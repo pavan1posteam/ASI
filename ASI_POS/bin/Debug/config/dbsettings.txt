@@ -1,1 +1,0 @@
-{"selectpath":"C:\\ksv\\Data","UpFolder":"Upload","DownFolder":"Raw","service_fee":"198","TaxCode":"EXEMPT","shipCat":"195","tipCat":"197","discountCat":"63","visa":"741","amex":"79","mastercard":"742","discover":"743","generic":"770"}
