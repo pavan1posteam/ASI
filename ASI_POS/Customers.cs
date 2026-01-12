@@ -1,14 +1,15 @@
 ﻿using ASI_POS.Model;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.OleDb;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using System.Data.OleDb;
-using System.Text.RegularExpressions;
-using System.Data;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace ASI_POS
 {
@@ -51,17 +52,17 @@ namespace ASI_POS
                 {
                     int.TryParse(CusUpd.custid, out Lnwebcustid);
                 }
-                var preload = getCustomersInfo();
+                var preload = getCustomersInfo(Lnwebcustid);
                 bool LInsertCus = false;
                 if (Lnwebcustid != 0 && !LInsertCus)
                 {
                     var existing = preload.FirstOrDefault(c => c.Webcustid == Lnwebcustid);
                     if (existing != null)
                     {
-                        UpsertCustomerFields(existing, CusUpd, cphone, Lnwebcustid);
+                        existing = UpsertCustomerFields(existing, CusUpd, cphone, Lnwebcustid);
                         LInsertCus = true;
-                        SafeShowStatus($"Processed Customer ID: {CusUpd.custid}", 1);
-                        bool ok = updateCustomer(existing);
+                        SafeShowStatus($"Processed Existing Customer ID: {CusUpd.custid}", 1);
+                        bool ok = updateCustomer(existing, "webcustid");
                         if (!ok)
                             SafeShowStatus($"Failed to update for customer {Lnwebcustid}", 2);
                     }
@@ -69,26 +70,28 @@ namespace ASI_POS
                 if (!LInsertCus && !string.IsNullOrWhiteSpace(CusUpd.email))
                 {
                     string email = CusUpd.email.Trim();
+                    preload = getCustomersInfo("email", email);
                     var existing = preload.FirstOrDefault(c => !string.IsNullOrEmpty(c.Email) && c.Email.Trim().Equals(email, StringComparison.OrdinalIgnoreCase));
                     if (existing != null)
                     {
-                        UpsertCustomerFields(existing, CusUpd, cphone, Lnwebcustid);
+                        existing = UpsertCustomerFields(existing, CusUpd, cphone, Lnwebcustid);
                         LInsertCus = true;
-                        SafeShowStatus($"Processed Customer ID: {CusUpd.custid}", 1);
-                        bool ok = updateCustomer(existing);
+                        SafeShowStatus($"Processed Existing Customer ID: {CusUpd.custid}", 1);
+                        bool ok = updateCustomer(existing, "email");
                         if (!ok)
                             SafeShowStatus($"Failed to update for customer {Lnwebcustid}", 2);
                     }
                 }
                 if (!LInsertCus && !string.IsNullOrWhiteSpace(cphone))
                 {
+                    preload = getCustomersInfo("phone", cphone);
                     var existing = preload.FirstOrDefault(c => (!string.IsNullOrEmpty(c.Phone) && c.Phone.Trim() == cphone));
                     if (existing != null)
                     {
-                        UpsertCustomerFields(existing, CusUpd, cphone, Lnwebcustid);
+                        existing = UpsertCustomerFields(existing, CusUpd, cphone, Lnwebcustid);
                         LInsertCus = true;
-                        SafeShowStatus($"Processed Customer ID: {CusUpd.custid}", 1);
-                        bool ok = updateCustomer(existing);
+                        SafeShowStatus($"Processed Existing Customer ID: {CusUpd.custid}", 1);
+                        bool ok = updateCustomer(existing, "phone");
                         if (!ok)
                             SafeShowStatus($"Failed to update for customer {Lnwebcustid}", 2);
                     }
@@ -96,17 +99,28 @@ namespace ASI_POS
                 if (!LInsertCus && !string.IsNullOrWhiteSpace(CusUpd.loyaltyno))
                 {
                     string loyalty = CusUpd.loyaltyno.Trim();
+                    preload = getCustomersInfo("altid", loyalty);
+                    bool flag = false, cflag = false;
                     var existing = preload.FirstOrDefault(c => !string.IsNullOrEmpty(c.Altid) && c.Altid.Trim() == loyalty);
+                    flag = preload.Count > 0;
                     if (existing == null)
                     {
+                        preload = getCustomersInfo("clubcard", loyalty);
                         existing = preload.FirstOrDefault(c => !string.IsNullOrEmpty(c.Clubcard) && c.Clubcard.Trim() == loyalty);
+                        cflag = preload.Count > 0;
                     }
                     if (existing != null)
                     {
-                        UpsertCustomerFields(existing, CusUpd, cphone, Lnwebcustid);
+                        
+                        existing = UpsertCustomerFields(existing, CusUpd, cphone, Lnwebcustid);
                         LInsertCus = true;
-                        SafeShowStatus($"Processed Customer ID: {CusUpd.custid}", 1);
-                        bool ok = updateCustomer(existing);
+                        string columnname = "";
+                        if (flag)
+                            columnname = "altid";
+                        if (cflag)
+                            columnname = "clubcard";
+                        bool ok = updateCustomer(existing, columnname);
+                        SafeShowStatus($"Processed Existing Customer ID: {CusUpd.custid}", 1);
                         if (!ok)
                             SafeShowStatus($"Failed to update for customer {Lnwebcustid}", 2);
                     }
@@ -149,7 +163,7 @@ namespace ASI_POS
             }
             return true;
         }
-        public List<cus> getCustomersInfo()
+        public List<cus> getCustomersInfo(int customerid = 0)
         {
             settings.LoadSettings();
             if (string.IsNullOrWhiteSpace(settings.serverpath))
@@ -165,69 +179,174 @@ namespace ASI_POS
                 using (var conn = new OleDbConnection(settings.ConnectionString))
                 {
                     conn.Open();
-                    string sql = "SELECT * FROM cus";
+                    string sql = "SELECT * FROM cus where webcustid = ?";
 
                     using (var cmd = new OleDbCommand(sql, conn))
-                    using (var reader = cmd.ExecuteReader())
                     {
-                        while (reader.Read())
+                        cmd.Parameters.Add(
+                                new OleDbParameter { OleDbType = OleDbType.Integer, Value = customerid }
+                            );
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            var c = new cus();
-
-                            string GetString(int idx1)
+                            while (reader.Read())
                             {
-                                if (idx1 < 0) return null;
-                                if (reader.IsDBNull(idx1)) return null;
-                                return reader.GetValue(idx1)?.ToString().Trim();
-                            }
+                                var c = new cus();
 
-                            int GetOrdinalOrMinus(string name)
-                            {
-                                try { return reader.GetOrdinal(name); }
-                                catch (IndexOutOfRangeException) { return -1; }
-                            }
-                            int idx;
-
-                            idx = GetOrdinalOrMinus("customer"); if (idx >= 0) { var v = GetString(idx); if (int.TryParse(v, out int ci)) c.Customer = ci; }
-                            idx = GetOrdinalOrMinus("firstname"); if (idx >= 0) c.Firstname = GetString(idx);
-                            idx = GetOrdinalOrMinus("lastname"); if (idx >= 0) c.Lastname = GetString(idx);
-                            idx = GetOrdinalOrMinus("phone"); if (idx >= 0) c.Phone = GetString(idx);
-                            idx = GetOrdinalOrMinus("email"); if (idx >= 0) c.Email = GetString(idx);
-                            idx = GetOrdinalOrMinus("webcustid"); if (idx >= 0) { var v = GetString(idx); if (int.TryParse(v, out int wcid)) c.Webcustid = wcid; }
-                            idx = GetOrdinalOrMinus("clubcard"); if (idx >= 0) c.Clubcard = GetString(idx);
-                            idx = GetOrdinalOrMinus("altid"); if (idx >= 0) c.Altid = GetString(idx);
-                            idx = GetOrdinalOrMinus("street1"); if (idx >= 0) c.Street1 = GetString(idx);
-                            idx = GetOrdinalOrMinus("city"); if (idx >= 0) c.City = GetString(idx);
-                            idx = GetOrdinalOrMinus("state"); if (idx >= 0) c.State = GetString(idx);
-                            idx = GetOrdinalOrMinus("zip"); if (idx >= 0) c.Zip = GetString(idx);
-                            idx = GetOrdinalOrMinus("taxcode"); if (idx >= 0) c.Taxcode = GetString(idx);
-                            idx = GetOrdinalOrMinus("store"); if (idx >= 0) c.Store = GetString(idx);
-                            idx = GetOrdinalOrMinus("status"); if (idx >= 0) c.Status = GetString(idx);
-                            idx = GetOrdinalOrMinus("fson");
-                            if (idx >= 0)
-                            {
-                                var fv = GetString(idx);
-                                if (!string.IsNullOrEmpty(fv))
+                                string GetString(int idx1)
                                 {
-                                    if (fv.Equals("T", StringComparison.OrdinalIgnoreCase) || fv.Equals("Y", StringComparison.OrdinalIgnoreCase) || fv == "1")
-                                        c.Fson = true;
-                                    else if (fv.Equals("F", StringComparison.OrdinalIgnoreCase) || fv == "N" || fv == "0")
-                                        c.Fson = false;
+                                    if (idx1 < 0) return null;
+                                    if (reader.IsDBNull(idx1)) return null;
+                                    return reader.GetValue(idx1)?.ToString().Trim();
                                 }
-                            }
-                            idx = GetOrdinalOrMinus("startdate");
-                            if (idx >= 0 && !reader.IsDBNull(idx))
-                            {
-                                var val = reader.GetValue(idx);
-                                if (val is DateTime dt) c.Startdate = dt;
-                                else
-                                {
-                                    var str = val?.ToString();
-                                    if (DateTime.TryParse(str, out DateTime parsed)) c.Startdate = parsed;
-                                }
-                            }
 
-                            customers.Add(c);
+                                int GetOrdinalOrMinus(string name)
+                                {
+                                    try { return reader.GetOrdinal(name); }
+                                    catch (IndexOutOfRangeException) { return -1; }
+                                }
+                                int idx;
+
+                                idx = GetOrdinalOrMinus("customer"); if (idx >= 0) { var v = GetString(idx); if (int.TryParse(v, out int ci)) c.Customer = ci; }
+                                idx = GetOrdinalOrMinus("firstname"); if (idx >= 0) c.Firstname = GetString(idx);
+                                idx = GetOrdinalOrMinus("lastname"); if (idx >= 0) c.Lastname = GetString(idx);
+                                idx = GetOrdinalOrMinus("phone"); if (idx >= 0) c.Phone = GetString(idx);
+                                idx = GetOrdinalOrMinus("email"); if (idx >= 0) c.Email = GetString(idx);
+                                idx = GetOrdinalOrMinus("webcustid"); if (idx >= 0) { var v = GetString(idx); if (int.TryParse(v, out int wcid)) c.Webcustid = wcid; }
+                                idx = GetOrdinalOrMinus("clubcard"); if (idx >= 0) c.Clubcard = GetString(idx);
+                                idx = GetOrdinalOrMinus("altid"); if (idx >= 0) c.Altid = GetString(idx);
+                                idx = GetOrdinalOrMinus("street1"); if (idx >= 0) c.Street1 = GetString(idx);
+                                idx = GetOrdinalOrMinus("city"); if (idx >= 0) c.City = GetString(idx);
+                                idx = GetOrdinalOrMinus("state"); if (idx >= 0) c.State = GetString(idx);
+                                idx = GetOrdinalOrMinus("zip"); if (idx >= 0) c.Zip = GetString(idx);
+                                idx = GetOrdinalOrMinus("taxcode"); if (idx >= 0) c.Taxcode = GetString(idx);
+                                idx = GetOrdinalOrMinus("store"); if (idx >= 0) c.Store = GetString(idx);
+                                idx = GetOrdinalOrMinus("status"); if (idx >= 0) c.Status = GetString(idx);
+                                idx = GetOrdinalOrMinus("fson");
+                                if (idx >= 0)
+                                {
+                                    var fv = GetString(idx);
+                                    if (!string.IsNullOrEmpty(fv))
+                                    {
+                                        if (fv.Equals("T", StringComparison.OrdinalIgnoreCase) || fv.Equals("Y", StringComparison.OrdinalIgnoreCase) || fv == "1")
+                                            c.Fson = true;
+                                        else if (fv.Equals("F", StringComparison.OrdinalIgnoreCase) || fv == "N" || fv == "0")
+                                            c.Fson = false;
+                                    }
+                                }
+                                idx = GetOrdinalOrMinus("startdate");
+                                if (idx >= 0 && !reader.IsDBNull(idx))
+                                {
+                                    var val = reader.GetValue(idx);
+                                    if (val is DateTime dt) c.Startdate = dt;
+                                    else
+                                    {
+                                        var str = val?.ToString();
+                                        if (DateTime.TryParse(str, out DateTime parsed)) c.Startdate = parsed;
+                                    }
+                                }
+
+                                customers.Add(c);
+                            }
+                        }
+                    }
+                    conn.Close();
+                }
+            }
+            catch (OleDbException ex)
+            {
+                SafeShowStatus($"Failed: {ex.Message} ", 2);
+            }
+            catch (Exception ex)
+            {
+                SafeShowStatus($"Failed: {ex.Message} ", 2);
+            }
+
+            return customers;
+        }
+        public List<cus> getCustomersInfo(string columnname, string value = "")
+        {
+            settings.LoadSettings();
+            if (string.IsNullOrWhiteSpace(settings.serverpath))
+                throw new ArgumentException("dbfFolder required", nameof(settings.serverpath));
+
+            if (!System.IO.Directory.Exists(settings.serverpath))
+                throw new System.IO.DirectoryNotFoundException($"DBF folder not found: {settings.serverpath}");
+
+            var customers = new List<cus>();
+
+            try
+            {
+                using (var conn = new OleDbConnection(settings.ConnectionString))
+                {
+                    conn.Open();
+                    string sql = $"SELECT * FROM cus where {columnname} = ?";
+
+                    using (var cmd = new OleDbCommand(sql, conn))
+                    {
+                        cmd.Parameters.Add(
+                                new OleDbParameter { OleDbType = OleDbType.VarChar, Value = value }
+                            );
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var c = new cus();
+
+                                string GetString(int idx1)
+                                {
+                                    if (idx1 < 0) return null;
+                                    if (reader.IsDBNull(idx1)) return null;
+                                    return reader.GetValue(idx1)?.ToString().Trim();
+                                }
+
+                                int GetOrdinalOrMinus(string name)
+                                {
+                                    try { return reader.GetOrdinal(name); }
+                                    catch (IndexOutOfRangeException) { return -1; }
+                                }
+                                int idx;
+
+                                idx = GetOrdinalOrMinus("customer"); if (idx >= 0) { var v = GetString(idx); if (int.TryParse(v, out int ci)) c.Customer = ci; }
+                                idx = GetOrdinalOrMinus("firstname"); if (idx >= 0) c.Firstname = GetString(idx);
+                                idx = GetOrdinalOrMinus("lastname"); if (idx >= 0) c.Lastname = GetString(idx);
+                                idx = GetOrdinalOrMinus("phone"); if (idx >= 0) c.Phone = GetString(idx);
+                                idx = GetOrdinalOrMinus("email"); if (idx >= 0) c.Email = GetString(idx);
+                                idx = GetOrdinalOrMinus("webcustid"); if (idx >= 0) { var v = GetString(idx); if (int.TryParse(v, out int wcid)) c.Webcustid = wcid; }
+                                idx = GetOrdinalOrMinus("clubcard"); if (idx >= 0) c.Clubcard = GetString(idx);
+                                idx = GetOrdinalOrMinus("altid"); if (idx >= 0) c.Altid = GetString(idx);
+                                idx = GetOrdinalOrMinus("street1"); if (idx >= 0) c.Street1 = GetString(idx);
+                                idx = GetOrdinalOrMinus("city"); if (idx >= 0) c.City = GetString(idx);
+                                idx = GetOrdinalOrMinus("state"); if (idx >= 0) c.State = GetString(idx);
+                                idx = GetOrdinalOrMinus("zip"); if (idx >= 0) c.Zip = GetString(idx);
+                                idx = GetOrdinalOrMinus("taxcode"); if (idx >= 0) c.Taxcode = GetString(idx);
+                                idx = GetOrdinalOrMinus("store"); if (idx >= 0) c.Store = GetString(idx);
+                                idx = GetOrdinalOrMinus("status"); if (idx >= 0) c.Status = GetString(idx);
+                                idx = GetOrdinalOrMinus("fson");
+                                if (idx >= 0)
+                                {
+                                    var fv = GetString(idx);
+                                    if (!string.IsNullOrEmpty(fv))
+                                    {
+                                        if (fv.Equals("T", StringComparison.OrdinalIgnoreCase) || fv.Equals("Y", StringComparison.OrdinalIgnoreCase) || fv == "1")
+                                            c.Fson = true;
+                                        else if (fv.Equals("F", StringComparison.OrdinalIgnoreCase) || fv == "N" || fv == "0")
+                                            c.Fson = false;
+                                    }
+                                }
+                                idx = GetOrdinalOrMinus("startdate");
+                                if (idx >= 0 && !reader.IsDBNull(idx))
+                                {
+                                    var val = reader.GetValue(idx);
+                                    if (val is DateTime dt) c.Startdate = dt;
+                                    else
+                                    {
+                                        var str = val?.ToString();
+                                        if (DateTime.TryParse(str, out DateTime parsed)) c.Startdate = parsed;
+                                    }
+                                }
+
+                                customers.Add(c);
+                            }
                         }
                     }
                     conn.Close();
@@ -338,7 +457,7 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
                 return false;
             }
         }
-        private void UpsertCustomerFields(cus existing, custable CusUpd, string cphone, int Lnwebcustid)
+        private cus UpsertCustomerFields(cus existing, custable CusUpd, string cphone, int Lnwebcustid)
         {
             if (!string.IsNullOrWhiteSpace(CusUpd.firstname))
                 existing.Firstname = CusUpd.firstname.Trim();
@@ -363,13 +482,14 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
                 if (!string.IsNullOrWhiteSpace(CusUpd.loyaltyno))
                     existing.Clubcard = CusUpd.loyaltyno.Trim();
             }
+            return existing;
         }
-        private bool updateCustomer(cus existing)
+        private bool updateCustomer(cus existing, string columname = "")
         {
             if (existing == null) return false;
             if (string.IsNullOrWhiteSpace(settings.serverpath))
                 throw new ArgumentException("dbfFolder required", nameof(settings.serverpath));
-            string sql = @"UPDATE cus SET 
+            string sql = $@"UPDATE cus SET 
                         firstname = ?, 
                         lastname  = ?, 
                         phone     = ?, 
@@ -380,7 +500,7 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
                         zip     = ?, 
                         clubcard  = ?, 
                         webcustid = ?
-                   WHERE webcustid = ?";
+                   WHERE {columname} = ?";
             try
             {
                 using (var conn = new OleDbConnection(settings.ConnectionString))
@@ -398,7 +518,14 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
                     cmd.Parameters.Add(new OleDbParameter("p8", ToDbValue(existing.Zip)));
                     cmd.Parameters.Add(new OleDbParameter("p9", ToDbValue(existing.Clubcard)));
                     cmd.Parameters.Add(new OleDbParameter("p10", existing.Webcustid.HasValue ? (object)existing.Webcustid.Value : 0));
-                    cmd.Parameters.Add(new OleDbParameter("p11", existing.Webcustid.HasValue ? (object)existing.Webcustid.Value : 0));
+                    if(columname.Contains("webcustid"))
+                        cmd.Parameters.Add(new OleDbParameter("p11", existing.Webcustid.HasValue ? (object)existing.Webcustid.Value : 0));
+                    else if (columname.Contains("email"))
+                        cmd.Parameters.Add(new OleDbParameter("p11", ToDbValue(existing.Email)));
+                    else if (columname.Contains("phone"))
+                        cmd.Parameters.Add(new OleDbParameter("p11", ToDbValue(existing.Phone)));
+                    else if (columname.Contains("clubcard"))
+                        cmd.Parameters.Add(new OleDbParameter("p11", ToDbValue(existing.Clubcard)));
                     int rows = cmd.ExecuteNonQuery();
                     conn.Close();
                     return rows > 0; 
@@ -507,7 +634,7 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
             }
             else
             {
-                try { File.AppendAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "download.log"), DateTime.Now + " " + msg + Environment.NewLine); } catch { }
+                try { File.AppendAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ErrorLogs.log"), DateTime.Now + " " + msg + Environment.NewLine); } catch { }
             }
         }
 

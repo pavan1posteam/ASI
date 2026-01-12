@@ -21,12 +21,8 @@ namespace ASI_POS
         DataTable dtCat;
         clsSettings settings = new clsSettings();
         public event Action SettingsUpdated;
-        List<clsCategories> categories = new List<clsCategories>();
-        private static readonly byte[] Key =
-        Encoding.UTF8.GetBytes("Bottlecapps-Secret-Key!!"); // 32 bytes
-
-        private static readonly byte[] IV =
-            Encoding.UTF8.GetBytes("16ByteInitVector"); // 16 bytes
+        private static readonly byte[] Key = Encoding.UTF8.GetBytes("Bottlecapps-Secret-Key!!"); 
+        private static readonly byte[] IV = Encoding.UTF8.GetBytes("16ByteInitVector"); 
         public Form2()
         {
             InitializeComponent();
@@ -106,25 +102,95 @@ namespace ASI_POS
             }
 
         }
-
-        private void btnBrowse_Click(object sender, EventArgs e)
+        private void loadCats(List<clsCategories> categories)
         {
-            using (var fbd = new FolderBrowserDialog())
+            var savedCats = categories;
+
+            dtCat = new DataTable();
+            dataGridView1.AutoGenerateColumns = false;
+
+            using (var con = new OleDbConnection(settings.ConnectionString))
+            using (var cmd = new OleDbCommand("SELECT DISTINCT 0 as sel, CAT as ID, Name, Taxlevel FROM cat order by Name", con))
+            using (var adp = new OleDbDataAdapter(cmd))
             {
-                DialogResult result = fbd.ShowDialog();
-
-                if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
-                {
-                    textpath.Text = fbd.SelectedPath;
-                }
+                adp.Fill(dtCat);
             }
-        }
 
-        private void btnDbSave_Click(object sender, EventArgs e)
+            foreach (var saved in savedCats.Where(c => c.Sel == 1))
+            {
+                var row = dtCat.AsEnumerable()
+                               .FirstOrDefault(r => r["Name"].ToString() == saved.Depart);
+
+                if (row != null)
+                    row["sel"] = 1;
+            }
+
+            dataGridView1.ColumnCount = 3;
+
+            //Add Columns
+            dataGridView1.Columns[0].Name = "sel";
+            dataGridView1.Columns[0].HeaderText = "Select";
+            dataGridView1.Columns[0].DataPropertyName = "sel";
+
+            dataGridView1.Columns[1].Name = "CAT_ID";
+            dataGridView1.Columns[1].HeaderText = "ID";
+            dataGridView1.Columns[1].DataPropertyName = "ID";
+
+            dataGridView1.Columns[2].Name = "Description";
+            dataGridView1.Columns[2].HeaderText = "Name";
+            dataGridView1.Columns[2].DataPropertyName = "Name";
+            dataGridView1.Columns[2].Width = 400;
+            dataGridView1.DataSource = dtCat.DefaultView;
+
+            dataGridView1.DataSource = dtCat.DefaultView;
+        }
+        private List<clsCategories> GetCategoriesFromGrid()
+        {
+            var list = new List<clsCategories>();
+
+            if (dtCat == null) return list;
+
+            foreach (DataRow row in dtCat.Rows)
+            {
+                list.Add(new clsCategories
+                {
+                    Sel = row["sel"] == DBNull.Value ? 0 : Convert.ToInt32(row["sel"]),
+                    ID = row["ID"]?.ToString() ?? "0",
+                    Depart = row["Name"]?.ToString() ?? "",
+                    Taxlevel = row["Taxlevel"] == DBNull.Value ? 0 : Convert.ToInt32(row["Taxlevel"])
+                });
+            }
+
+            return list;
+        }
+        private void btnOtherSave_Click(object sender, EventArgs e)
         {
             btnFTPSave_Click(sender, e);
-        }
+            SettingsUpdated?.Invoke();
 
+        }
+        CheckBox HeaderCheckBox = null;
+        bool IsHeaderCheckBoxClicked = false;
+        private void HeaderCheckBox_MouseClick(object sender, MouseEventArgs e)
+        {
+            HeaderCheckBoxClick((CheckBox)sender);
+        }
+        private void AddHeaderCheckBox()
+        {
+            HeaderCheckBox = new CheckBox();
+            HeaderCheckBox.Size = new Size(15, 15);
+            this.dataGridView1.Controls.Add(HeaderCheckBox);
+        }
+        private void HeaderCheckBoxClick(CheckBox HCheckBox)
+        {
+            IsHeaderCheckBoxClicked = true;
+            foreach (DataGridViewRow dgvr in dataGridView1.Rows)
+            {
+                ((DataGridViewCheckBoxCell)dgvr.Cells["sel"]).Value = HCheckBox.Checked;
+                dataGridView1.RefreshEdit();
+                IsHeaderCheckBoxClicked = false;
+            }
+        }
         private void btnFTPSave_Click(object sender, EventArgs e)
         {
             clsDbSettings clsdb = new clsDbSettings();
@@ -208,7 +274,6 @@ namespace ASI_POS
                 }
             }
         }
-
         public static string Decrypt(byte[] cipher)
         {
             using (var aes = Aes.Create())
@@ -230,118 +295,7 @@ namespace ASI_POS
                 }
             }
         }
-        private void btnCatsave_Click(object sender, EventArgs e)
-        {
-            btnFTPSave_Click(sender, e);
-        }
-        private void loadCats(List<clsCategories> categories)
-        {
-            var savedCats = categories;
-
-            dtCat = new DataTable();
-            dataGridView1.AutoGenerateColumns = false;
-
-            using (var con = new OleDbConnection(settings.ConnectionString))
-            using (var cmd = new OleDbCommand("SELECT DISTINCT 0 as sel, CAT as ID, Name, Taxlevel FROM cat", con))
-            using (var adp = new OleDbDataAdapter(cmd))
-            {
-                adp.Fill(dtCat);
-            }
-
-            // apply saved selections
-            foreach (var saved in savedCats.Where(c => c.Sel == 1))
-            {
-                var row = dtCat.AsEnumerable()
-                               .FirstOrDefault(r => r["Name"].ToString() == saved.Depart);
-
-                if (row != null)
-                    row["sel"] = 1;
-            }
-
-            dataGridView1.ColumnCount = 3;
-
-            //Add Columns
-            dataGridView1.Columns[0].Name = "sel";
-            dataGridView1.Columns[0].HeaderText = "Select";
-            dataGridView1.Columns[0].DataPropertyName = "sel";
-
-            dataGridView1.Columns[1].Name = "CAT_ID";
-            dataGridView1.Columns[1].HeaderText = "ID";
-            dataGridView1.Columns[1].DataPropertyName = "ID";
-
-            dataGridView1.Columns[2].Name = "Description";
-            dataGridView1.Columns[2].HeaderText = "Name";
-            dataGridView1.Columns[2].DataPropertyName = "Name";
-            dataGridView1.Columns[2].Width = 400;
-            dataGridView1.DataSource = dtCat.DefaultView;
-
-            dataGridView1.DataSource = dtCat.DefaultView;
-        }
-        private List<clsCategories> GetCategoriesFromGrid()
-        {
-            var list = new List<clsCategories>();
-
-            if (dtCat == null) return list;
-
-            foreach (DataRow row in dtCat.Rows)
-            {
-                list.Add(new clsCategories
-                {
-                    Sel = row["sel"] == DBNull.Value ? 0 : Convert.ToInt32(row["sel"]),
-                    ID = row["ID"]?.ToString() ?? "0",
-                    Depart = row["Name"]?.ToString() ?? "",
-                    Taxlevel = row["Taxlevel"] == DBNull.Value ? 0 : Convert.ToInt32(row["Taxlevel"])
-                });
-            }
-
-            return list;
-        }
-        private void btnOtherSave_Click(object sender, EventArgs e)
-        {
-            btnFTPSave_Click(sender, e);
-            SettingsUpdated?.Invoke();
-
-        }
-        CheckBox HeaderCheckBox = null;
-        bool IsHeaderCheckBoxClicked = false;
-        private void AddHeaderCheckBox()
-        {
-            HeaderCheckBox = new CheckBox();
-            HeaderCheckBox.Size = new Size(15, 15);
-            this.dataGridView1.Controls.Add(HeaderCheckBox);
-        }
-        private void HeaderCheckBoxClick(CheckBox HCheckBox)
-        {
-            IsHeaderCheckBoxClicked = true;
-            foreach (DataGridViewRow dgvr in dataGridView1.Rows)
-            {
-                ((DataGridViewCheckBoxCell)dgvr.Cells["sel"]).Value = HCheckBox.Checked;
-                dataGridView1.RefreshEdit();
-                IsHeaderCheckBoxClicked = false;
-            }
-        }
-        private void HeaderCheckBox_MouseClick(object sender, MouseEventArgs e)
-        {
-            HeaderCheckBoxClick((CheckBox)sender);
-        }
-
-        private void btnExit_Click(object sender, EventArgs e)
-        {
-            this.Close();
-
-        }
-
         private void textpath_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void chkStoked_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label13_Click(object sender, EventArgs e)
         {
 
         }
@@ -351,24 +305,17 @@ namespace ASI_POS
             this.Close();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnBrowse_Click(object sender, EventArgs e)
         {
-            this.Close();
-        }
+            using (var fbd = new FolderBrowserDialog())
+            {
+                DialogResult result = fbd.ShowDialog();
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void button5_Click(object sender, EventArgs e)// Save cat
-        {
-            btnDbSave_Click(sender, e);
+                if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+                {
+                    textpath.Text = fbd.SelectedPath;
+                }
+            }
         }
     }
 }

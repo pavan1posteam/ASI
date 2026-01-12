@@ -62,6 +62,11 @@ namespace ASI_POS
                 InsertOddAndJnl_ftItems(orderId, cusinfo, paymentRow, orderLines, inventoryinfo, stkinfo, taxtable);
                 return true;
             }
+            #region Test region
+            //ksUpdate stockupdate = new ksUpdate();
+            //orderId = 301996194;
+            //stockupdate.UpInv(orderId, orderLines, paymentRow);
+            #endregion
             return false;
         }
         private bool updateOHDTable(int orderId, cus c, PmtTable pmt)
@@ -186,7 +191,7 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
                     bool Isofferprod = false;
                     decimal dis = 0;
                     decimal prodCost = 0;
-                    var stk = stkinfo.FirstOrDefault(t => !string.IsNullOrEmpty(t.SKU) && t.SKU.Trim() == ord.sku);
+                    var stk = stkinfo.FirstOrDefault(t => !string.IsNullOrEmpty(t.SKU.ToString()) && t.SKU.ToString().Trim() == ord.sku);
                     var itemInfo = inventoryinfo.FirstOrDefault(t => !string.IsNullOrEmpty(t.SKU) && t.SKU.Trim() == ord.sku);
                     if (stk != null)
                     {
@@ -362,6 +367,8 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
                 updateAnything(orderId, c, pmt, orddetails[0], 1021, $"CARD # {pmt.cardnumber}", 0, "", true);
                 string shipto = (pmt.shipto ?? "").Trim().Split(';')[0].ToUpper();
                 updateAnything(orderId, c, pmt, orddetails[0], 1022, $"{shipto}", 0, "", true);
+                ksUpdate stockupdate = new ksUpdate();
+                stockupdate.UpInv(orderId, orddetails, pmt);
             }
             return false;
         }
@@ -469,32 +476,6 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
             }
             return ++line;
         }
-        private void UpdateInventory(List<ordtable> orderLines)
-        {
-            using (var conn = new OleDbConnection(settings.ConnectionString))
-            {
-                conn.Open();
-                foreach (var line in orderLines)
-                {
-                    int deductQty = line.qty * (line.pack <= 0 ? 1 : line.pack);
-                    using (var cmd = conn.CreateCommand())
-                    {
-                        try
-                        {
-                            cmd.CommandText = @" UPDATE stk SET Back = Back - ? WHERE ALLTRIM(sku) == ?";
-                            cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Integer, Value = deductQty });
-                            cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = line.sku.Trim() });
-                            int rows = cmd.ExecuteNonQuery();
-                            if (rows == 0)
-                            {
-                                SafeShowStatus($"WARNING: SKU not found in inventory: {line.sku}", 2);
-                            }
-                        }
-                        catch (Exception) { }
-                    }
-                }
-            }
-        }
         private int GenerateAndValidateOrderId(List<ordtable> ordTables)
         {
             if (ordTables == null || ordTables.Count == 0)
@@ -529,8 +510,8 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
         {
             if (ord == null || pmt == null)
                 return null;
-
-            var customers = new Customers().getCustomersInfo();
+            int webcustomerid = Convert.ToInt32(pmt.PmtTables[0]?.custid);
+            var customers = new Customers().getCustomersInfo(webcustomerid);
             if (customers == null || customers.Count == 0)
                 return null;
             if (int.TryParse(pmt.PmtTables[0]?.custid, out int webCustId) && webCustId > 0)
@@ -656,6 +637,7 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
                                 idx = GetOrdinalOrMinus("ACOST"); if (idx >= 0) { var v = GetString(idx); if (decimal.TryParse(v, out decimal wcid)) c.ACOST = wcid; }
                                 idx = GetOrdinalOrMinus("fsfactor"); if (idx >= 0) { var v = GetString(idx); if (int.TryParse(v, out int wcid)) c.fsfactor = wcid; }
                                 idx = GetOrdinalOrMinus("fson"); if (idx >= 0) { var v = GetString(idx); if (bool.TryParse(v, out bool wcid)) c.fson = wcid; }
+                                idx = GetOrdinalOrMinus("sdate"); if (idx >= 0) { var v = GetString(idx); if (DateTime.TryParse(v, out DateTime wcid)) c.Sdate = wcid; }
                                 inventory.Add(c);
                             }
                         }
@@ -712,31 +694,110 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
                                 new OleDbParameter { OleDbType = OleDbType.Integer, Value = sku }
                             );
                         }
+
                         using (var reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                var c = new stk();
-
-                                string GetString(int idx1)
-                                {
-                                    if (idx1 < 0) return null;
-                                    if (reader.IsDBNull(idx1)) return null;
-                                    return reader.GetValue(idx1)?.ToString().Trim();
-                                }
-
-                                int GetOrdinalOrMinus(string name)
+                                int Ord(string name)
                                 {
                                     try { return reader.GetOrdinal(name); }
-                                    catch (IndexOutOfRangeException) { return -1; }
+                                    catch { return -1; }
                                 }
-                                int idx;
-                                idx = GetOrdinalOrMinus("SKU"); if (idx >= 0) c.SKU = GetString(idx);
-                                idx = GetOrdinalOrMinus("Store"); if (idx >= 0) { var v = GetString(idx); if (int.TryParse(v, out int wcid)) c.Store = wcid; }
-                                idx = GetOrdinalOrMinus("ACOST"); if (idx >= 0) { var v = GetString(idx); if (decimal.TryParse(v, out decimal wcid)) c.ACOST = wcid; }
-                                idx = GetOrdinalOrMinus("LCOST"); if (idx >= 0) { var v = GetString(idx); if (decimal.TryParse(v, out decimal wcid)) c.LCOST = wcid; }
+
+                                int GetInt(string name)
+                                {
+                                    int i = Ord(name);
+                                    return (i >= 0 && !reader.IsDBNull(i)) ? Convert.ToInt32(reader.GetValue(i)) : 0;
+                                }
+
+                                decimal GetDec(string name)
+                                {
+                                    int i = Ord(name);
+                                    return (i >= 0 && !reader.IsDBNull(i)) ? Convert.ToDecimal(reader.GetValue(i)) : 0m;
+                                }
+
+                                string GetStr(string name)
+                                {
+                                    int i = Ord(name);
+                                    return (i >= 0 && !reader.IsDBNull(i)) ? reader.GetValue(i).ToString().Trim() : "";
+                                }
+
+                                bool GetBool(string name)
+                                {
+                                    int i = Ord(name);
+                                    return (i >= 0 && !reader.IsDBNull(i)) && Convert.ToBoolean(reader.GetValue(i));
+                                }
+
+                                DateTime? GetDate(string name)
+                                {
+                                    int i = Ord(name);
+                                    return (i >= 0 && !reader.IsDBNull(i)) ? Convert.ToDateTime(reader.GetValue(i)) : (DateTime?)null;
+                                }
+
+                                var c = new stk
+                                {
+                                    SKU = GetInt("sku"),
+                                    Store = GetInt("store"),
+
+                                    Floor = GetInt("floor"),
+                                    Back = GetInt("back"),
+                                    Shipped = GetInt("shipped"),
+                                    Kits = GetInt("kits"),
+
+                                    Stat = GetStr("stat"),
+
+                                    MTD_UNITS = GetInt("mtd_units"),
+                                    Weeks = GetDec("weeks"),
+                                    SDate = GetDate("sdate"),
+
+                                    MTD_DOL = GetDec("mtd_dol"),
+                                    MTD_PROF = GetDec("mtd_prof"),
+
+                                    YTD_UNITS = GetInt("ytd_units"),
+                                    YTD_DOL = GetDec("ytd_dol"),
+                                    YTD_PROF = GetDec("ytd_prof"),
+
+                                    ACOST = GetDec("acost"),
+                                    LCOST = GetDec("lcost"),
+
+                                    PVEND = GetStr("pvend"),
+                                    LVEND = GetStr("lvend"),
+                                    PDate = GetDate("pdate"),
+
+                                    SMin = GetInt("smin"),
+                                    SOrd = GetInt("sord"),
+                                    SWeeks = GetDec("sweeks"),
+
+                                    Freeze_W = GetBool("freeze_w"),
+
+                                    Shelf = GetInt("shelf"),
+                                    RShelf = GetInt("rshelf"),
+
+                                    SLoc = GetStr("sloc"),
+                                    BLoc = GetStr("bloc"),
+
+                                    LStore = GetInt("lstore"),
+                                    Who = GetStr("who"),
+                                    TStamp = GetDate("tstamp"),
+
+                                    INET = GetDec("inet"),
+                                    Depos = GetStr("depos"),
+
+                                    SkipStat = GetBool("skipstat"),
+                                    MinCost = GetDec("mincost"),
+
+                                    Base = GetDec("base"),
+                                    Sent = GetBool("sent"),
+
+                                    Ware = GetInt("ware"),
+                                    Vintage = GetStr("vintage"),
+                                    GoSent = GetBool("gosent")
+                                };
+
                                 inventory.Add(c);
                             }
+
                         }
                     }
                     
@@ -818,7 +879,7 @@ VALUES(?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?,?, ?, ?, ?,?
             }
             else
             {
-                try { File.AppendAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "download.log"), DateTime.Now + " " + msg + Environment.NewLine); } catch { }
+                try { File.AppendAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ErrorLogs.log"), DateTime.Now + " " + msg + Environment.NewLine); } catch { }
             }
         }
     }

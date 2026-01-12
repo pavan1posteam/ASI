@@ -143,7 +143,39 @@
 							<xsd:element name="zipcodeextension">
 								<xsd:simpleType>
 									<xsd:restriction base="xsd:string">
-										<xsd:maxLength value="5"/>
+										<xsd:maxLength value="30"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="taxamount2">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:decimal">
+										<xsd:totalDigits value="17"/>
+										<xsd:fractionDigits value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="taxamount3">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:decimal">
+										<xsd:totalDigits value="17"/>
+										<xsd:fractionDigits value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="taxamount4">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:decimal">
+										<xsd:totalDigits value="17"/>
+										<xsd:fractionDigits value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="taxamount5">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:decimal">
+										<xsd:totalDigits value="17"/>
+										<xsd:fractionDigits value="2"/>
 									</xsd:restriction>
 								</xsd:simpleType>
 							</xsd:element>
@@ -155,4 +187,4 @@
 		</xsd:complexType>
 	</xsd:element>
 </xsd:schema>
-	<pmttable><transid>121383165995</transid><orderid>1973679</orderid><custid>11562485</custid><orddate>2025-12-11T12:45:12.193</orddate><posamount>37.98</posamount><discamount>0.20</discamount><taxamount>4.39</taxamount><shipamount>10.00</shipamount><tipamount>6.84</tipamount><servicefeeamount>2.99</servicefeeamount><totalamt>62.28</totalamt><shipto>Carlos Escamilla, 1250 Sherman St 303, Denver, CO 80203, 7203199340</shipto><payby>MasterCard</payby><cardnumber>XXXX3022</cardnumber><expdate></expdate><taxcode></taxcode><shipper>Delivery</shipper><loyaltyno></loyaltyno><shippingcost>0.00</shippingcost><zipcodeextension>2225</zipcodeextension></pmttable> </VFPData>
+	<pmttable><transid>121404898119</transid><orderid>1996429</orderid><custid>11869964</custid><orddate>2025-12-27T14:53:12.963</orddate><posamount>142.96</posamount><discamount>0.00</discamount><shipamount>10.00</shipamount><tipamount>14.30</tipamount><servicefeeamount>2.99</servicefeeamount><totalamt>184.54</totalamt><shipto>Michael Troop, 2990 E 17th Ave 1407, Denver, CO 80206, 3032501002</shipto><payby>MasterCard</payby><cardnumber>XXXX8408</cardnumber><expdate></expdate><taxcode></taxcode><shipper>Delivery</shipper><loyaltyno></loyaltyno><shippingcost>0.00</shippingcost><zipcodeextension>1676</zipcodeextension><taxamount>13.99</taxamount><taxamount2>0.00</taxamount2><taxamount3>0.00</taxamount3><taxamount4>0.00</taxamount4><taxamount5>0.00</taxamount5></pmttable> </VFPData>

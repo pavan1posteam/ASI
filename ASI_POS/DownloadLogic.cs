@@ -24,9 +24,28 @@ namespace ASI_POS
             try
             {
                 settings.LoadSettings();
-                //string outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"jnl_not_null_columns.txt");
-                //ExportNonNullableCusColumnsToFile(outputPath);
-                //SafeShowStatus("Exported NOT NULL CUS columns to: " + outputPath);
+                #region Test Region
+                //string tablename = "stk";
+                //string outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{tablename}_columns.txt");
+                //ExportdatatypeToFile(outputPath, tablename);
+                //SafeShowStatus($"Exported {tablename} columns datatype to: " + outputPath);
+                //ksUpdate update = new ksUpdate();
+                //int orderid = 301995127;
+                //DateTime orddate = DateTime.Now.AddDays(-18);
+                //inv itn = new inv
+                //{
+                //    SKU = "15791",
+                //    NAME = "Name",
+                //    cat = "Category",
+                //    Sdate = DateTime.Now.AddYears(-1)
+                //};
+                //jnl jnl = new jnl
+                //{
+                //    rflag = 0,
+                //    qty = 1
+                //};
+                //update.UpdateInv(orderid, itn, jnl, orddate);
+                #endregion
 
                 string ftpServerIP = settings.FtpServer;
                 string ftpUserID = settings.FtpUserName;
@@ -74,7 +93,7 @@ namespace ASI_POS
                     SafeShowStatus("0 Files Found!", 2);
                     return result;
                 }
-                string downloadFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Upload/Download");
+                string downloadFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Upload/OrderPending");
                 Directory.CreateDirectory(downloadFolder);
 
                 SafeShowStatus($"{xmlFiles.Count} Files Found!", 1);
@@ -179,7 +198,7 @@ namespace ASI_POS
             }
             finally
             {
-                if(xmlcount > 0)
+                //if(xmlcount > 0)
                 {
                     ProcessDownloadedXmlFiles();
                     SafeShowStatus("All Done", 1);
@@ -187,53 +206,10 @@ namespace ASI_POS
                 SafeShowStatus("Disconnected from FTP", 3);
             }
         }
-        #region test region
-        //public void ExportNonNullableCusColumnsToFile(string outputFilePath)
-        //{
-        //    settings.LoadSettings();
-
-        //    if (string.IsNullOrWhiteSpace(settings.ConnectionString))
-        //        throw new InvalidOperationException("ConnectionString not configured.");
-
-        //    using (var conn = new OleDbConnection(settings.ConnectionString))
-        //    using (var cmd = conn.CreateCommand())
-        //    {
-        //        conn.Open();
-
-        //        cmd.CommandText = "SELECT * FROM jnl WHERE 1=0";
-
-        //        using (var reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
-        //        {
-        //            var schema = reader.GetSchemaTable();
-        //            if (schema == null)
-        //                throw new InvalidOperationException("Failed to read schema for cus table.");
-
-        //            using (var sw = new StreamWriter(outputFilePath, false))
-        //            {
-        //                sw.WriteLine("NOT NULL columns in CUS table");
-        //                sw.WriteLine("================================");
-        //                sw.WriteLine("ColumnName | DataType | ColumnSize");
-        //                sw.WriteLine("--------------------------------");
-
-        //                foreach (DataRow row in schema.Rows)
-        //                {
-        //                    string colName = row["ColumnName"].ToString();
-        //                    string dataType = row["DataType"]?.ToString() ?? "Unknown";
-        //                    string colSize = row.Table.Columns.Contains("ColumnSize")
-        //                        ? row["ColumnSize"]?.ToString()
-        //                        : "N/A";
-
-        //                    sw.WriteLine($"{colName} | {dataType} | {colSize}");
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-        #endregion
         public XmlProcessResult ProcessDownloadedXmlFiles()
         {
             var result = new XmlProcessResult();
-            string downloadFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Upload/Download");
+            string downloadFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Upload/OrderPending");
             var files = Directory.GetFiles(downloadFolder, "*.xml", SearchOption.TopDirectoryOnly)
                      .Select(f => new
                      {
@@ -249,10 +225,9 @@ namespace ASI_POS
                 {
                     SafeShowStatus("Processing file: " + f.Name);
                     var xmlContent = File.ReadAllText(f.FullPath);
-
                     Customers customers = new Customers();
                     flag = customers.customerupdate(f.Name, xmlContent);
-                    SafeShowStatus("Customer Update Completed", 1);
+                    
                     if (flag)
                     {
                         MoveToArchive(f.Name);
@@ -265,6 +240,7 @@ namespace ASI_POS
                     SafeShowStatus($"Processing failed {f.Name}: {ex.Message}", 2);
                 }
             }
+            SafeShowStatus("Customer Update Completed", 1);
             var ordFiles = files.Where(f => f.Prefix == "ORD").ToList();
             var pmtFiles = files.Where(f => f.Prefix == "PMT").ToList();
             var ordLookup = ordFiles.ToDictionary(f => Regex.Replace(f.Name, @"^(ORD)_?", "", RegexOptions.IgnoreCase), f => f);
@@ -296,7 +272,7 @@ namespace ASI_POS
         }
         public void MoveToArchive(string fileName)
         {
-            string downloadFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Upload/Download");
+            string downloadFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Upload/OrderPending");
             string transferTo = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Archive");
             if (!Directory.Exists(transferTo))
                 Directory.CreateDirectory(transferTo);
@@ -317,7 +293,7 @@ namespace ASI_POS
             }
             else
             {
-                try { File.AppendAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "download.log"), DateTime.Now + " " + msg + Environment.NewLine); } catch { }
+                try { File.AppendAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ErrorLogs.log"), DateTime.Now + " " + msg + Environment.NewLine); } catch { }
             }
         }
         public void Install()
@@ -460,7 +436,48 @@ namespace ASI_POS
                 SafeShowStatus("Installation Failed!", 2);
             }
         }
+        #region test region
+        public void ExportdatatypeToFile(string outputFilePath, string tablename = "inv")
+        {
+            settings.LoadSettings();
 
+            if (string.IsNullOrWhiteSpace(settings.ConnectionString))
+                throw new InvalidOperationException("ConnectionString not configured.");
+
+            using (var conn = new OleDbConnection(settings.ConnectionString))
+            using (var cmd = conn.CreateCommand())
+            {
+                conn.Open();
+
+                cmd.CommandText = $"SELECT * FROM {tablename} WHERE 1=0";
+
+                using (var reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
+                {
+                    var schema = reader.GetSchemaTable();
+                    if (schema == null)
+                        throw new InvalidOperationException($"Failed to read schema for {tablename} table.");
+
+                    using (var sw = new StreamWriter(outputFilePath, false))
+                    {
+                        sw.WriteLine("================================");
+                        sw.WriteLine("ColumnName | DataType | ColumnSize");
+                        sw.WriteLine("--------------------------------");
+
+                        foreach (DataRow row in schema.Rows)
+                        {
+                            string colName = row["ColumnName"].ToString();
+                            string dataType = row["DataType"]?.ToString() ?? "Unknown";
+                            string colSize = row.Table.Columns.Contains("ColumnSize")
+                                ? row["ColumnSize"]?.ToString()
+                                : "N/A";
+
+                            sw.WriteLine($"{colName} | {dataType} | {colSize}");
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
     }
     public class FtpDownloadResult
     {

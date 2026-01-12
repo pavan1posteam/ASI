@@ -49,8 +49,6 @@ namespace ASI_POS
             this.label8 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.button2 = new System.Windows.Forms.Button();
-            this.btnDbSave = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.txtdownloadpath = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
@@ -70,8 +68,6 @@ namespace ASI_POS
             this.label24 = new System.Windows.Forms.Label();
             this.label23 = new System.Windows.Forms.Label();
             this.label22 = new System.Windows.Forms.Label();
-            this.button5 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
             this.txtShippingCat = new System.Windows.Forms.TextBox();
             this.txtTipCat = new System.Windows.Forms.TextBox();
             this.txtDiscountCat = new System.Windows.Forms.TextBox();
@@ -83,16 +79,18 @@ namespace ASI_POS
             this.txtservicefee = new System.Windows.Forms.TextBox();
             this.label16 = new System.Windows.Forms.Label();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.button1 = new System.Windows.Forms.Button();
-            this.btnCatsave = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.sel = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.btnExit = new System.Windows.Forms.Button();
-            this.btnOtherSave = new System.Windows.Forms.Button();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.chkdownloadfilesftp = new System.Windows.Forms.CheckBox();
+            this.chkuploadfilesftp = new System.Windows.Forms.CheckBox();
+            this.numericDownload = new System.Windows.Forms.NumericUpDown();
+            this.numericUpload = new System.Windows.Forms.NumericUpDown();
+            this.label28 = new System.Windows.Forms.Label();
+            this.label27 = new System.Windows.Forms.Label();
             this.chkfrequent = new System.Windows.Forms.CheckBox();
             this.txtmobilecashier = new System.Windows.Forms.TextBox();
             this.label18 = new System.Windows.Forms.Label();
@@ -115,12 +113,6 @@ namespace ASI_POS
             this.textMarkUp = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.label27 = new System.Windows.Forms.Label();
-            this.label28 = new System.Windows.Forms.Label();
-            this.numericUpload = new System.Windows.Forms.NumericUpDown();
-            this.numericDownload = new System.Windows.Forms.NumericUpDown();
-            this.chkuploadfilesftp = new System.Windows.Forms.CheckBox();
-            this.chkdownloadfilesftp = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -131,8 +123,8 @@ namespace ASI_POS
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.tabPage4.SuspendLayout();
             this.panel3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpload)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericDownload)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpload)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -143,7 +135,7 @@ namespace ASI_POS
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tabControl1.Location = new System.Drawing.Point(16, 4);
+            this.tabControl1.Location = new System.Drawing.Point(5, 4);
             this.tabControl1.Margin = new System.Windows.Forms.Padding(4);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -152,8 +144,6 @@ namespace ASI_POS
             // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.button3);
-            this.tabPage2.Controls.Add(this.btnFTPSave);
             this.tabPage2.Controls.Add(this.panel2);
             this.tabPage2.Location = new System.Drawing.Point(4, 33);
             this.tabPage2.Margin = new System.Windows.Forms.Padding(4);
@@ -169,10 +159,10 @@ namespace ASI_POS
             this.button3.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button3.Image = ((System.Drawing.Image)(resources.GetObject("button3.Image")));
             this.button3.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button3.Location = new System.Drawing.Point(432, 405);
+            this.button3.Location = new System.Drawing.Point(453, 500);
             this.button3.Margin = new System.Windows.Forms.Padding(4);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(140, 42);
+            this.button3.Size = new System.Drawing.Size(151, 52);
             this.button3.TabIndex = 12;
             this.button3.Text = "Exit";
             this.button3.UseVisualStyleBackColor = true;
@@ -180,15 +170,15 @@ namespace ASI_POS
             // 
             // btnFTPSave
             // 
+            this.btnFTPSave.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnFTPSave.Image = ((System.Drawing.Image)(resources.GetObject("btnFTPSave.Image")));
             this.btnFTPSave.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnFTPSave.Location = new System.Drawing.Point(8, 395);
+            this.btnFTPSave.Location = new System.Drawing.Point(290, 500);
             this.btnFTPSave.Margin = new System.Windows.Forms.Padding(4);
             this.btnFTPSave.Name = "btnFTPSave";
-            this.btnFTPSave.Size = new System.Drawing.Size(225, 52);
+            this.btnFTPSave.Size = new System.Drawing.Size(155, 52);
             this.btnFTPSave.TabIndex = 11;
-            this.btnFTPSave.Text = "Save FTP Settings";
-            this.btnFTPSave.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnFTPSave.Text = "Apply";
             this.btnFTPSave.UseVisualStyleBackColor = true;
             this.btnFTPSave.Click += new System.EventHandler(this.btnFTPSave_Click);
             // 
@@ -211,7 +201,7 @@ namespace ASI_POS
             this.panel2.Location = new System.Drawing.Point(8, 8);
             this.panel2.Margin = new System.Windows.Forms.Padding(4);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(564, 379);
+            this.panel2.Size = new System.Drawing.Size(579, 439);
             this.panel2.TabIndex = 2;
             // 
             // txtwebstore
@@ -330,8 +320,6 @@ namespace ASI_POS
             // 
             // tabPage1
             // 
-            this.tabPage1.Controls.Add(this.button2);
-            this.tabPage1.Controls.Add(this.btnDbSave);
             this.tabPage1.Controls.Add(this.panel1);
             this.tabPage1.Location = new System.Drawing.Point(4, 33);
             this.tabPage1.Margin = new System.Windows.Forms.Padding(4);
@@ -341,34 +329,6 @@ namespace ASI_POS
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Database Settings";
             this.tabPage1.UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this.button2.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button2.Image = ((System.Drawing.Image)(resources.GetObject("button2.Image")));
-            this.button2.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button2.Location = new System.Drawing.Point(424, 401);
-            this.button2.Margin = new System.Windows.Forms.Padding(4);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(140, 42);
-            this.button2.TabIndex = 11;
-            this.button2.Text = "Exit";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // btnDbSave
-            // 
-            this.btnDbSave.Image = ((System.Drawing.Image)(resources.GetObject("btnDbSave.Image")));
-            this.btnDbSave.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnDbSave.Location = new System.Drawing.Point(11, 397);
-            this.btnDbSave.Margin = new System.Windows.Forms.Padding(4);
-            this.btnDbSave.Name = "btnDbSave";
-            this.btnDbSave.Size = new System.Drawing.Size(211, 50);
-            this.btnDbSave.TabIndex = 10;
-            this.btnDbSave.Text = "Save DB Settings";
-            this.btnDbSave.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btnDbSave.UseVisualStyleBackColor = true;
-            this.btnDbSave.Click += new System.EventHandler(this.btnDbSave_Click);
             // 
             // panel1
             // 
@@ -380,10 +340,10 @@ namespace ASI_POS
             this.panel1.Controls.Add(this.btnBrowse);
             this.panel1.Controls.Add(this.textpath);
             this.panel1.Controls.Add(this.labelPath);
-            this.panel1.Location = new System.Drawing.Point(11, 31);
+            this.panel1.Location = new System.Drawing.Point(0, 4);
             this.panel1.Margin = new System.Windows.Forms.Padding(4);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(553, 362);
+            this.panel1.Size = new System.Drawing.Size(587, 447);
             this.panel1.TabIndex = 1;
             // 
             // txtdownloadpath
@@ -462,8 +422,6 @@ namespace ASI_POS
             this.tabPage5.Controls.Add(this.label24);
             this.tabPage5.Controls.Add(this.label23);
             this.tabPage5.Controls.Add(this.label22);
-            this.tabPage5.Controls.Add(this.button5);
-            this.tabPage5.Controls.Add(this.button4);
             this.tabPage5.Controls.Add(this.txtShippingCat);
             this.tabPage5.Controls.Add(this.txtTipCat);
             this.tabPage5.Controls.Add(this.txtDiscountCat);
@@ -563,33 +521,6 @@ namespace ASI_POS
             this.label22.TabIndex = 38;
             this.label22.Text = "Visa:";
             // 
-            // button5
-            // 
-            this.button5.Image = ((System.Drawing.Image)(resources.GetObject("button5.Image")));
-            this.button5.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button5.Location = new System.Drawing.Point(23, 388);
-            this.button5.Margin = new System.Windows.Forms.Padding(4);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(211, 50);
-            this.button5.TabIndex = 37;
-            this.button5.Text = "Save Cat";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
-            // 
-            // button4
-            // 
-            this.button4.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button4.Image = ((System.Drawing.Image)(resources.GetObject("button4.Image")));
-            this.button4.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button4.Location = new System.Drawing.Point(423, 388);
-            this.button4.Margin = new System.Windows.Forms.Padding(4);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(140, 50);
-            this.button4.TabIndex = 36;
-            this.button4.Text = "Exit";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
-            // 
             // txtShippingCat
             // 
             this.txtShippingCat.Location = new System.Drawing.Point(447, 13);
@@ -672,8 +603,6 @@ namespace ASI_POS
             // 
             // tabPage3
             // 
-            this.tabPage3.Controls.Add(this.button1);
-            this.tabPage3.Controls.Add(this.btnCatsave);
             this.tabPage3.Controls.Add(this.dataGridView1);
             this.tabPage3.Location = new System.Drawing.Point(4, 33);
             this.tabPage3.Margin = new System.Windows.Forms.Padding(4);
@@ -682,34 +611,6 @@ namespace ASI_POS
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Categories";
             this.tabPage3.UseVisualStyleBackColor = true;
-            // 
-            // button1
-            // 
-            this.button1.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Image = ((System.Drawing.Image)(resources.GetObject("button1.Image")));
-            this.button1.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button1.Location = new System.Drawing.Point(442, 409);
-            this.button1.Margin = new System.Windows.Forms.Padding(4);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(140, 42);
-            this.button1.TabIndex = 11;
-            this.button1.Text = "Exit";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // btnCatsave
-            // 
-            this.btnCatsave.Image = ((System.Drawing.Image)(resources.GetObject("btnCatsave.Image")));
-            this.btnCatsave.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnCatsave.Location = new System.Drawing.Point(9, 402);
-            this.btnCatsave.Margin = new System.Windows.Forms.Padding(4);
-            this.btnCatsave.Name = "btnCatsave";
-            this.btnCatsave.Size = new System.Drawing.Size(213, 49);
-            this.btnCatsave.TabIndex = 3;
-            this.btnCatsave.Text = "Save Categories";
-            this.btnCatsave.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btnCatsave.UseVisualStyleBackColor = true;
-            this.btnCatsave.Click += new System.EventHandler(this.btnCatsave_Click);
             // 
             // dataGridView1
             // 
@@ -721,13 +622,13 @@ namespace ASI_POS
             this.sel,
             this.ID,
             this.Description});
-            this.dataGridView1.Location = new System.Drawing.Point(9, 14);
+            this.dataGridView1.Location = new System.Drawing.Point(4, 4);
             this.dataGridView1.Margin = new System.Windows.Forms.Padding(4);
             this.dataGridView1.MultiSelect = false;
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersVisible = false;
             this.dataGridView1.RowHeadersWidth = 51;
-            this.dataGridView1.Size = new System.Drawing.Size(573, 380);
+            this.dataGridView1.Size = new System.Drawing.Size(587, 447);
             this.dataGridView1.TabIndex = 2;
             this.dataGridView1.VirtualMode = true;
             // 
@@ -761,8 +662,6 @@ namespace ASI_POS
             // 
             // tabPage4
             // 
-            this.tabPage4.Controls.Add(this.btnExit);
-            this.tabPage4.Controls.Add(this.btnOtherSave);
             this.tabPage4.Controls.Add(this.panel3);
             this.tabPage4.Location = new System.Drawing.Point(4, 33);
             this.tabPage4.Margin = new System.Windows.Forms.Padding(4);
@@ -772,36 +671,6 @@ namespace ASI_POS
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Options";
             this.tabPage4.UseVisualStyleBackColor = true;
-            // 
-            // btnExit
-            // 
-            this.btnExit.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnExit.Image = ((System.Drawing.Image)(resources.GetObject("btnExit.Image")));
-            this.btnExit.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnExit.Location = new System.Drawing.Point(425, 405);
-            this.btnExit.Margin = new System.Windows.Forms.Padding(4);
-            this.btnExit.Name = "btnExit";
-            this.btnExit.Size = new System.Drawing.Size(140, 42);
-            this.btnExit.TabIndex = 10;
-            this.btnExit.Text = "Exit";
-            this.btnExit.UseVisualStyleBackColor = true;
-            this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
-            // 
-            // btnOtherSave
-            // 
-            this.btnOtherSave.BackColor = System.Drawing.Color.Transparent;
-            this.btnOtherSave.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnOtherSave.Image = ((System.Drawing.Image)(resources.GetObject("btnOtherSave.Image")));
-            this.btnOtherSave.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnOtherSave.Location = new System.Drawing.Point(23, 400);
-            this.btnOtherSave.Margin = new System.Windows.Forms.Padding(4);
-            this.btnOtherSave.Name = "btnOtherSave";
-            this.btnOtherSave.Size = new System.Drawing.Size(129, 47);
-            this.btnOtherSave.TabIndex = 13;
-            this.btnOtherSave.Text = "Save";
-            this.btnOtherSave.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btnOtherSave.UseVisualStyleBackColor = false;
-            this.btnOtherSave.Click += new System.EventHandler(this.btnOtherSave_Click);
             // 
             // panel3
             // 
@@ -834,11 +703,65 @@ namespace ASI_POS
             this.panel3.Controls.Add(this.textMarkUp);
             this.panel3.Controls.Add(this.label12);
             this.panel3.Controls.Add(this.label2);
-            this.panel3.Location = new System.Drawing.Point(23, 22);
+            this.panel3.Location = new System.Drawing.Point(0, 4);
             this.panel3.Margin = new System.Windows.Forms.Padding(4);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(542, 372);
+            this.panel3.Size = new System.Drawing.Size(587, 443);
             this.panel3.TabIndex = 12;
+            // 
+            // chkdownloadfilesftp
+            // 
+            this.chkdownloadfilesftp.AutoSize = true;
+            this.chkdownloadfilesftp.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkdownloadfilesftp.Location = new System.Drawing.Point(356, 34);
+            this.chkdownloadfilesftp.Name = "chkdownloadfilesftp";
+            this.chkdownloadfilesftp.Size = new System.Drawing.Size(159, 28);
+            this.chkdownloadfilesftp.TabIndex = 52;
+            this.chkdownloadfilesftp.Text = "Download Files";
+            this.chkdownloadfilesftp.UseVisualStyleBackColor = true;
+            // 
+            // chkuploadfilesftp
+            // 
+            this.chkuploadfilesftp.AutoSize = true;
+            this.chkuploadfilesftp.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkuploadfilesftp.Location = new System.Drawing.Point(380, 4);
+            this.chkuploadfilesftp.Name = "chkuploadfilesftp";
+            this.chkuploadfilesftp.Size = new System.Drawing.Size(135, 28);
+            this.chkuploadfilesftp.TabIndex = 51;
+            this.chkuploadfilesftp.Text = "Upload Files";
+            this.chkuploadfilesftp.UseVisualStyleBackColor = true;
+            // 
+            // numericDownload
+            // 
+            this.numericDownload.Location = new System.Drawing.Point(162, 36);
+            this.numericDownload.Name = "numericDownload";
+            this.numericDownload.Size = new System.Drawing.Size(120, 32);
+            this.numericDownload.TabIndex = 50;
+            // 
+            // numericUpload
+            // 
+            this.numericUpload.Location = new System.Drawing.Point(162, 2);
+            this.numericUpload.Name = "numericUpload";
+            this.numericUpload.Size = new System.Drawing.Size(120, 32);
+            this.numericUpload.TabIndex = 49;
+            // 
+            // label28
+            // 
+            this.label28.AutoSize = true;
+            this.label28.Location = new System.Drawing.Point(22, 38);
+            this.label28.Name = "label28";
+            this.label28.Size = new System.Drawing.Size(134, 24);
+            this.label28.TabIndex = 48;
+            this.label28.Text = "Download (M):";
+            // 
+            // label27
+            // 
+            this.label27.AutoSize = true;
+            this.label27.Location = new System.Drawing.Point(46, 4);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(110, 24);
+            this.label27.TabIndex = 47;
+            this.label27.Text = "Upload (M):";
             // 
             // chkfrequent
             // 
@@ -1048,65 +971,13 @@ namespace ASI_POS
             this.label2.Size = new System.Drawing.Size(0, 24);
             this.label2.TabIndex = 14;
             // 
-            // label27
-            // 
-            this.label27.AutoSize = true;
-            this.label27.Location = new System.Drawing.Point(46, 4);
-            this.label27.Name = "label27";
-            this.label27.Size = new System.Drawing.Size(110, 24);
-            this.label27.TabIndex = 47;
-            this.label27.Text = "Upload (M):";
-            // 
-            // label28
-            // 
-            this.label28.AutoSize = true;
-            this.label28.Location = new System.Drawing.Point(22, 38);
-            this.label28.Name = "label28";
-            this.label28.Size = new System.Drawing.Size(134, 24);
-            this.label28.TabIndex = 48;
-            this.label28.Text = "Download (M):";
-            // 
-            // numericUpload
-            // 
-            this.numericUpload.Location = new System.Drawing.Point(162, 2);
-            this.numericUpload.Name = "numericUpload";
-            this.numericUpload.Size = new System.Drawing.Size(120, 32);
-            this.numericUpload.TabIndex = 49;
-            // 
-            // numericDownload
-            // 
-            this.numericDownload.Location = new System.Drawing.Point(162, 36);
-            this.numericDownload.Name = "numericDownload";
-            this.numericDownload.Size = new System.Drawing.Size(120, 32);
-            this.numericDownload.TabIndex = 50;
-            // 
-            // chkuploadfilesftp
-            // 
-            this.chkuploadfilesftp.AutoSize = true;
-            this.chkuploadfilesftp.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.chkuploadfilesftp.Location = new System.Drawing.Point(380, 4);
-            this.chkuploadfilesftp.Name = "chkuploadfilesftp";
-            this.chkuploadfilesftp.Size = new System.Drawing.Size(135, 28);
-            this.chkuploadfilesftp.TabIndex = 51;
-            this.chkuploadfilesftp.Text = "Upload Files";
-            this.chkuploadfilesftp.UseVisualStyleBackColor = true;
-            // 
-            // chkdownloadfilesftp
-            // 
-            this.chkdownloadfilesftp.AutoSize = true;
-            this.chkdownloadfilesftp.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.chkdownloadfilesftp.Location = new System.Drawing.Point(356, 34);
-            this.chkdownloadfilesftp.Name = "chkdownloadfilesftp";
-            this.chkdownloadfilesftp.Size = new System.Drawing.Size(159, 28);
-            this.chkdownloadfilesftp.TabIndex = 52;
-            this.chkdownloadfilesftp.Text = "Download Files";
-            this.chkdownloadfilesftp.UseVisualStyleBackColor = true;
-            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(621, 509);
+            this.ClientSize = new System.Drawing.Size(621, 556);
+            this.Controls.Add(this.btnFTPSave);
+            this.Controls.Add(this.button3);
             this.Controls.Add(this.tabControl1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4);
@@ -1127,18 +998,15 @@ namespace ASI_POS
             this.tabPage4.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpload)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericDownload)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpload)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Button btnExit;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.Button btnDbSave;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button btnBrowse;
         private System.Windows.Forms.TextBox textpath;
@@ -1156,9 +1024,7 @@ namespace ASI_POS
         private System.Windows.Forms.TextBox txtFTPuid;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TabPage tabPage3;
-        private System.Windows.Forms.Button btnCatsave;
         private System.Windows.Forms.TabPage tabPage4;
-        private System.Windows.Forms.Button btnOtherSave;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.TextBox textMarkUp;
         private System.Windows.Forms.Label label12;
@@ -1179,8 +1045,6 @@ namespace ASI_POS
         private System.Windows.Forms.CheckBox chkdiscountable;
         private System.Windows.Forms.CheckBox chkfloor;
         private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button1;
         private System.Windows.Forms.CheckBox chkallqtyperpack;
         private System.Windows.Forms.TextBox txtstat;
         private System.Windows.Forms.Label label14;
@@ -1207,8 +1071,6 @@ namespace ASI_POS
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.Label label19;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button4;
         private System.Windows.Forms.TextBox txtAmex;
         private System.Windows.Forms.TextBox txtMc;
         private System.Windows.Forms.TextBox txtDiscover;

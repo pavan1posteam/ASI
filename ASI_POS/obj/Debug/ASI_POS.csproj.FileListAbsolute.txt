@@ -23,6 +23,7 @@ C:\Bottlecapps\MAU\ASI\ASI_POS\obj\Debug\ASI_POS.Form2.resources
 C:\Bottlecapps\MAU\ASI\ASI_POS\obj\Debug\ASI_POS.Properties.Resources.resources
 C:\Bottlecapps\MAU\ASI\ASI_POS\obj\Debug\ASI_POS.csproj.GenerateResource.cache
 C:\Bottlecapps\MAU\ASI\ASI_POS\obj\Debug\ASI_POS.csproj.CoreCompileInputs.cache
-C:\Bottlecapps\MAU\ASI\ASI_POS\obj\Debug\ASI_POS.csproj.CopyComplete
 C:\Bottlecapps\MAU\ASI\ASI_POS\obj\Debug\ASI_POS.exe
 C:\Bottlecapps\MAU\ASI\ASI_POS\obj\Debug\ASI_POS.pdb
+C:\Bottlecapps\MAU\ASI\ASI_POS\obj\Debug\ASI_POS.exe.config
+C:\Bottlecapps\MAU\ASI\ASI_POS\obj\Debug\ASI_POS.csproj.Up2Date

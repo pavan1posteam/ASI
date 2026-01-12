@@ -64,6 +64,7 @@
     <Compile Include="Form2.Designer.cs">
       <DependentUpon>Form2.cs</DependentUpon>
     </Compile>
+    <Compile Include="ksUpdate.cs" />
     <Compile Include="Model\AppSettings.cs" />
     <Compile Include="Model\clsCategories.cs" />
     <Compile Include="Model\clsDbSettings.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="Model\clsOthers.cs" />
     <Compile Include="Model\cus.cs" />
     <Compile Include="Model\GenerateCSV.cs" />
+    <Compile Include="Model\StockItem.cs" />
     <Compile Include="Model\VFPData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
